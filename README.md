@@ -1,36 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# VØID — Silence. Redefined.
 
-## Getting Started
+> — Site e-commerce portfolio ultra premium — 
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Stack
+
+- **Next.js 15** — App Router
+- **TypeScript** — strict mode
+- **Tailwind CSS v4** — design system OBSIDIAN
+- **Framer Motion** — page transitions, reveals
+- **GSAP + ScrollTrigger** — animations premium
+- **Lenis** — smooth scroll
+- **Three.js / R3F** — scène 3D hero
+- **Zustand** — cart state
+- **Supabase** — free tier
+- **Vercel** — déploiement
+
+---
+
+## Design System — Palette OBSIDIAN
+
+| Token | Valeur | Usage |
+|-------|--------|-------|
+| `void-base` | `#000000` | Fond absolu |
+| `void-surface` | `#080808` | Surfaces |
+| `void-card` | `#0F0F0F` | Cartes, modals |
+| `void-border` | `#1C1C1C` | Bordures |
+| `void-white` | `#E8E8E8` | Blanc froid |
+| `void-green` | `#4DFFB4` | Accent électrique |
+| `void-text` | `#F2F2F2` | Texte principal |
+| `void-muted` | `#666666` | Texte secondaire |
+
+**Fonts** : Clash Display (titres) + Satoshi (body) via Fontshare
+
+---
+
+## Structure
+
+```
+void-store/
+├── app/
+│   ├── page.tsx              # Home
+│   ├── collection/           # Catalog
+│   ├── product/[slug]/       # Product page
+│   ├── cart/                 # Panier
+│   ├── about/                # Brand story
+│   └── contact/              # Formulaire
+├── components/
+│   ├── layout/               # Navbar, Footer, PageTransition
+│   ├── home/                 # Hero, Marquee, Stats
+│   ├── product/              # ProductCard, Gallery
+│   ├── cart/                 # CartDrawer
+│   └── shared/               # Cursor, Lenis, SplitText
+├── lib/                      # gsap, store, supabase
+├── hooks/                    # useGSAP, useLenis, useCart
+└── types/
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Install
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm install
+npm run dev
+```
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## Variables d'environnement
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Crée un fichier `.env.local` :
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```env
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+RESEND_API_KEY=
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=
+STRIPE_PUBLISHABLE_KEY=
+STRIPE_SECRET_KEY=
+```
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+*Portfolio project — not a real store*

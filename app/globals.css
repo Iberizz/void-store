@@ -1,26 +1,225 @@
+@import url('https://api.fontshare.com/v2/css?f[]=clash-display@400,500&f[]=satoshi@300,400,500&display=swap');
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* ── VØID OBSIDIAN — Design Tokens ── */
+@theme {
+  --color-void-base:    #000000;
+  --color-void-surface: #080808;
+  --color-void-card:    #0F0F0F;
+  --color-void-border:  #1C1C1C;
+  --color-void-white:   #E8E8E8;
+  --color-void-green:   #4DFFB4;
+  --color-void-text:    #F2F2F2;
+  --color-void-muted:   #666666;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  --font-sans:    'Satoshi', sans-serif;
+  --font-display: 'Clash Display', sans-serif;
+  --font-mono:    ui-monospace, 'Geist Mono', monospace;
+
+  --animate-grain: grain 8s steps(10) infinite;
+
+  @keyframes grain {
+    0%, 100% { transform: translate(0, 0); }
+    10%      { transform: translate(-2%, -3%); }
+    20%      { transform: translate(3%, 1%); }
+    30%      { transform: translate(-1%, 4%); }
+    40%      { transform: translate(2%, -2%); }
+    50%      { transform: translate(-3%, 2%); }
+    60%      { transform: translate(1%, -4%); }
+    70%      { transform: translate(-2%, 3%); }
+    80%      { transform: translate(3%, -1%); }
+    90%      { transform: translate(-1%, 2%); }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* shadcn — mapping CSS vars → Tailwind utilities */
+@theme inline {
+  --color-background:              var(--background);
+  --color-foreground:              var(--foreground);
+  --color-card:                    var(--card);
+  --color-card-foreground:         var(--card-foreground);
+  --color-popover:                 var(--popover);
+  --color-popover-foreground:      var(--popover-foreground);
+  --color-primary:                 var(--primary);
+  --color-primary-foreground:      var(--primary-foreground);
+  --color-secondary:               var(--secondary);
+  --color-secondary-foreground:    var(--secondary-foreground);
+  --color-muted:                   var(--muted);
+  --color-muted-foreground:        var(--muted-foreground);
+  --color-accent:                  var(--accent);
+  --color-accent-foreground:       var(--accent-foreground);
+  --color-destructive:             var(--destructive);
+  --color-border:                  var(--border);
+  --color-input:                   var(--input);
+  --color-ring:                    var(--ring);
+  --color-chart-1:                 var(--chart-1);
+  --color-chart-2:                 var(--chart-2);
+  --color-chart-3:                 var(--chart-3);
+  --color-chart-4:                 var(--chart-4);
+  --color-chart-5:                 var(--chart-5);
+  --color-sidebar:                 var(--sidebar);
+  --color-sidebar-foreground:      var(--sidebar-foreground);
+  --color-sidebar-primary:         var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent:          var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border:          var(--sidebar-border);
+  --color-sidebar-ring:            var(--sidebar-ring);
+  --radius-sm:  calc(var(--radius) * 0.6);
+  --radius-md:  calc(var(--radius) * 0.8);
+  --radius-lg:  var(--radius);
+  --radius-xl:  calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* ── CSS Custom Properties ── */
+:root {
+  /* VØID OBSIDIAN */
+  --void-base:    #000000;
+  --void-surface: #080808;
+  --void-card:    #0F0F0F;
+  --void-border:  #1C1C1C;
+  --void-white:   #E8E8E8;
+  --void-green:   #4DFFB4;
+  --void-text:    #F2F2F2;
+  --void-muted:   #666666;
+
+  /* shadcn overridden to VØID dark defaults */
+  --background:            #000000;
+  --foreground:            #F2F2F2;
+  --card:                  #0F0F0F;
+  --card-foreground:       #F2F2F2;
+  --popover:               #0F0F0F;
+  --popover-foreground:    #F2F2F2;
+  --primary:               #E8E8E8;
+  --primary-foreground:    #000000;
+  --secondary:             #0F0F0F;
+  --secondary-foreground:  #F2F2F2;
+  --muted:                 #1C1C1C;
+  --muted-foreground:      #666666;
+  --accent:                #4DFFB4;
+  --accent-foreground:     #000000;
+  --destructive:           oklch(0.577 0.245 27.325);
+  --border:                #1C1C1C;
+  --input:                 #1C1C1C;
+  --ring:                  #4DFFB4;
+  --chart-1:               #4DFFB4;
+  --chart-2:               #E8E8E8;
+  --chart-3:               #666666;
+  --chart-4:               #0F0F0F;
+  --chart-5:               #1C1C1C;
+  --radius:                0.5rem;
+  --sidebar:               #080808;
+  --sidebar-foreground:    #F2F2F2;
+  --sidebar-primary:       #4DFFB4;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent:        #0F0F0F;
+  --sidebar-accent-foreground: #F2F2F2;
+  --sidebar-border:        #1C1C1C;
+  --sidebar-ring:          #4DFFB4;
+}
+
+/* ── Reset + Base — dans @layer base pour ne pas écraser @layer utilities ── */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: var(--void-base);
+    color: var(--void-text);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  h1, h2 {
+    font-family: var(--font-display);
+  }
+}
+
+/* ── Sound wave pulse ── */
+@keyframes wave-pulse {
+  0%, 100% { opacity: 0.3; }
+  50%       { opacity: 0;   }
+}
+
+/* ── Marquee animations ── */
+@keyframes scroll-left {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-33.333%); }
+}
+
+@keyframes scroll-right {
+  from { transform: translateX(-33.333%); }
+  to   { transform: translateX(0); }
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #080808;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1C1C1C;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2a2a2a;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #1C1C1C #080808;
+}
+
+/* ── Grain Overlay ── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.035;
+  animation: grain 8s steps(10) infinite;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 128px 128px;
+}
+
+/* ── Base layer overrides ── */
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  ::selection {
+    background-color: #4DFFB4;
+    color: #000000;
+  }
 }
