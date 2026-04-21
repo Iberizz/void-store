@@ -22,7 +22,7 @@ export default function ProductCard({
   const wrapRef  = useRef<HTMLDivElement>(null)
   const cardRef  = useRef<HTMLDivElement>(null)
   const imageRef = useRef<HTMLDivElement>(null)
-  const isInView = useInView(wrapRef, { once: true, margin: '-5%' })
+  const isInView = useInView(wrapRef, { once: true, margin: '0px 0px -10% 0px' })
 
   const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const card = cardRef.current
@@ -68,12 +68,14 @@ export default function ProductCard({
           </span>
 
           {/* Image */}
-          <div ref={imageRef} className="absolute inset-0 will-change-transform">
-            <Image
-              src={imageSrc} alt={name} fill
-              className="object-cover"
-              sizes={size === 'large' ? '(max-width: 768px) 100vw, 60vw' : '(max-width: 768px) 100vw, 40vw'}
-            />
+          <div ref={imageRef} className="absolute inset-0 p-8 will-change-transform">
+            <div className="relative w-full h-full">
+              <Image
+                src={imageSrc} alt={name} fill
+                className="object-contain"
+                sizes={size === 'large' ? '(max-width: 768px) 100vw, 60vw' : '(max-width: 768px) 100vw, 50vw'}
+              />
+            </div>
           </div>
 
           {/* Bottom bar */}

@@ -162,14 +162,14 @@
   50%       { opacity: 0;   }
 }
 
-/* ── Marquee animations ── */
+/* ── Marquee animations — offset driven by --marquee-offset CSS var ── */
 @keyframes scroll-left {
   from { transform: translateX(0); }
-  to   { transform: translateX(-33.333%); }
+  to   { transform: translateX(var(--marquee-offset)); }
 }
 
 @keyframes scroll-right {
-  from { transform: translateX(-33.333%); }
+  from { transform: translateX(var(--marquee-offset)); }
   to   { transform: translateX(0); }
 }
 

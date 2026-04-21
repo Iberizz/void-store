@@ -1,6 +1,6 @@
 # VØID — Silence. Redefined.
 
-> Portfolio e-commerce ultra premium — niveau Awwwards
+> Portfolio e-commerce ultra premium — niveau Awwwards  
 > Produit fictif : casque audio sans fil premium
 
 ---
@@ -28,11 +28,11 @@
 | Token | Valeur | Usage |
 |-------|--------|-------|
 | `void-base` | `#000000` | Fond absolu |
-| `void-surface` | `#080808` | Surfaces, StatsSection |
-| `void-card` | `#0F0F0F` | Cards produit |
+| `void-surface` | `#080808` | Surfaces, StatsSection, filter bar |
+| `void-card` | `#0F0F0F` | Cards produit, Navbar pill |
 | `void-border` | `#1C1C1C` | Bordures, dividers |
-| `void-white` | `#E8E8E8` | Textes importants, CTA |
-| `void-green` | `#4DFFB4` | Accent électrique, unités, tags |
+| `void-white` | `#E8E8E8` | Textes importants |
+| `void-green` | `#4DFFB4` | Accent — tags, unités, liens actifs |
 | `void-text` | `#F2F2F2` | Texte principal |
 | `void-muted` | `#666666` | Texte secondaire |
 
@@ -45,15 +45,16 @@
 Le scroll = le temps. Le canvas R3F est fixé derrière toutes les sections.
 
 ```
-SceneCanvas (fixed z-0)    — casque 3D tourne en continu, réagit au scroll
+SceneCanvas (fixed z-0)       — casque 3D tourne en continu, réagit au scroll
 │
-├── Section 1  Hero         — "SILENCE." SplitText scramble, CTAs
-├── Marquee                 — bande CSS défilante bidirectionnelle
-├── Section 2  Manifesto    — word reveal au scrub ScrollTrigger
-├── Section 3  Stats        — 4 counters GSAP animés
-├── Section 4  Collection   — 3 cards tilt 3D + slide-up CTA
-├── Section 5  Final CTA    — "Ready for silence?"
-└── Footer
+├── Section 1  Hero            — "SILENCE." SplitText scramble, CTAs
+├── Marquee                    — CSS dynamique, ResizeObserver, 2 rangées opposées
+├── Section 2  Stats           — 4 counters GSAP animés
+├── Section 3  Manifesto       — WordReveal scrub + "01" watermark + specs
+├── Section 4  Cinematic       — sticky 400vh, 4 slides, fond blanc, transitions diagonales
+├── Section 5  CollectionPreview — 3 cards tilt 3D + slide-up CTA
+├── Section 6  Final CTA       — "Ready for silence?"
+└── Footer                     — Lusion style, wordmark pleine largeur
 ```
 
 ---
@@ -66,7 +67,9 @@ void-store/
 │   ├── globals.css              # @theme tokens, reset @layer base, keyframes
 │   ├── layout.tsx               # Root layout
 │   ├── page.tsx                 # Home narrative
-│   ├── collection/page.tsx
+│   ├── collection/
+│   │   ├── page.tsx             # Server Component wrapper
+│   │   └── CollectionClient.tsx # Filtres + grille symétrique + hero card
 │   ├── product/[slug]/page.tsx
 │   ├── cart/page.tsx
 │   ├── about/page.tsx
@@ -75,19 +78,20 @@ void-store/
 ├── components/
 │   ├── layout/
 │   │   ├── Navbar.tsx           # Pill flottante centrée, backdrop-blur
-│   │   ├── Footer.tsx
+│   │   ├── Footer.tsx           # Lusion style — wordmark full-width
 │   │   └── ClientProviders.tsx  # LenisProvider + CustomCursor dynamic
 │   ├── home/
 │   │   ├── Hero.tsx             # SILENCE. + GSAP scramble, z-10 transparent
 │   │   ├── SceneCanvas.tsx      # R3F canvas fixed z-0 + SVG sound waves
 │   │   ├── SceneCanvasLoader.tsx# ssr:false wrapper
-│   │   ├── Marquee.tsx          # CSS pur, 2 rangées opposées
-│   │   ├── ManifestoSection.tsx # WordReveal + specs #4DFFB4
+│   │   ├── Marquee.tsx          # ResizeObserver, copies dynamiques, CSS var offset
+│   │   ├── ManifestoSection.tsx # WordReveal + "01" watermark + specs #4DFFB4
 │   │   ├── StatsSection.tsx     # 4 counters GSAP, bg-[#080808]
-│   │   ├── CollectionPreview.tsx# 3 cards tilt 3D
+│   │   ├── CinematicSection.tsx # Sticky 400vh, 4 slides, fond blanc, progress bar
+│   │   ├── CollectionPreview.tsx# 3 cards tilt 3D, addItem Zustand
 │   │   └── FinalCTA.tsx         # "Ready for silence?"
 │   ├── product/
-│   │   └── ProductCard.tsx      # (à extraire de CollectionPreview)
+│   │   └── ProductCard.tsx      # useInView clip-path + GSAP tilt, object-contain
 │   ├── cart/
 │   │   └── CartDrawer.tsx       # à builder
 │   └── shared/
@@ -100,11 +104,20 @@ void-store/
 │
 └── public/
     ├── images/
-    │   ├── void-pro.png
-    │   ├── void-air.png
-    │   └── void-studio.png
-    └── models/
-        └── headphone.glb
+    │   ├── void-pro.png / void-pro-916.png
+    │   ├── void-air.png / void-air-916.png
+    │   ├── void-studio.png / void-studio-916.png
+    │   ├── slide-drivers.png
+    │   ├── slide-battery.png
+    │   ├── slide-anc.png
+    │   ├── slide-hero.png
+    │   ├── headphone-hero.png
+    │   ├── headphone-flatlay.png
+    │   └── headphone-detail.png
+    ├── models/
+    │   └── headphone.glb
+    └── videos/
+        └── headphone-exploded.mp4
 ```
 
 ---
@@ -114,11 +127,14 @@ void-store/
 ```
 ✅ Design system + globals.css
 ✅ Layout root (Navbar pill, Lenis, CustomCursor)
-✅ Home — toutes les sections
+✅ Home — toutes les sections (Hero, Marquee, Stats, Manifesto, Cinematic, CollectionPreview, FinalCTA)
 ✅ Navbar pill flottante
 ✅ SceneCanvas R3F global (canvas fixé)
 ✅ WordReveal (composant réutilisable)
-⬜ /collection
+✅ CinematicSection (sticky 400vh, 4 slides, fond blanc, progress bar)
+✅ Footer Lusion style
+✅ ProductCard (clip-path reveal, tilt 3D)
+✅ /collection (filtres, hero card, grille symétrique)
 ⬜ /product/[slug]
 ⬜ /cart + CartDrawer
 ⬜ /about
@@ -147,4 +163,4 @@ STRIPE_SECRET_KEY=
 
 ---
 
-*Portfolio project — not a real store · VØID 2025*
+*Portfolio project — not a real store · VØID 2026*

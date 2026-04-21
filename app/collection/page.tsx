@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function CollectionPage() {
   return (
-    <main className="relative z-10 bg-[#000000] pt-20">
+    <main className="relative z-10 bg-[#000000]">
       <CollectionClient />
     </main>
   )

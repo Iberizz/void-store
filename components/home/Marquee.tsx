@@ -1,28 +1,52 @@
-const ITEMS = [
-  'SILENCE',
-  'REDEFINED',
-  'PREMIUM AUDIO',
-  'AW25',
-  'ENGINEERED SOUND',
-  'VØID',
-]
+'use client'
+
+import { useRef, useState, useEffect } from 'react'
+
+const ITEMS = ['SILENCE', 'REDEFINED', 'PREMIUM AUDIO', 'AW25', 'ENGINEERED SOUND', 'VØID']
 
 function MarqueeRow({ direction }: { direction: 'left' | 'right' }) {
-  const repeated = [...ITEMS, ...ITEMS, ...ITEMS]
+  const containerRef = useRef<HTMLDivElement>(null)
+  const trackRef     = useRef<HTMLUListElement>(null)
+  const copiesRef    = useRef(3)
+  const [copies, setCopies] = useState(3)
+
+  useEffect(() => {
+    const container = containerRef.current
+    const track     = trackRef.current
+    if (!container || !track) return
+
+    const recalculate = () => {
+      const trackWidth = track.scrollWidth
+      if (!trackWidth) return
+      const singleW   = trackWidth / copiesRef.current
+      const newCopies = Math.ceil(window.innerWidth / singleW) + 2
+      if (newCopies !== copiesRef.current) {
+        copiesRef.current = newCopies
+        setCopies(newCopies)
+      }
+    }
+
+    const ro = new ResizeObserver(recalculate)
+    ro.observe(container)
+    recalculate()
+
+    return () => ro.disconnect()
+  }, [])
+
+  const repeated = Array.from({ length: copies }, () => ITEMS).flat()
+  const offset   = `${(100 / copies).toFixed(4)}%`
 
   return (
-    <div className="flex overflow-hidden">
+    <div ref={containerRef} className="overflow-hidden">
       <ul
-        className={direction === 'left' ? 'marquee-left' : 'marquee-right'}
+        ref={trackRef}
         role="list"
         style={{
           display: 'flex',
-          flexShrink: 0,
-          minWidth: '100%',
-          animation: direction === 'left'
-            ? 'scroll-left 25s linear infinite'
-            : 'scroll-right 35s linear infinite',
-        }}
+          willChange: 'transform',
+          '--marquee-offset': `-${offset}`,
+          animation: `${direction === 'left' ? 'scroll-left' : 'scroll-right'} ${direction === 'left' ? '25s' : '35s'} linear infinite`,
+        } as React.CSSProperties}
       >
         {repeated.map((item, i) => (
           <li
