@@ -20,11 +20,11 @@ export default function Home() {
       {/* Visual break */}
       <Marquee />
 
-      {/* Section 2 — Manifesto word reveal */}
-      <ManifestoSection />
-
-      {/* Section 3 — Stats */}
+      {/* Section 2 — Stats */}
       <StatsSection />
+
+      {/* Section 3 — Manifesto word reveal */}
+      <ManifestoSection />
 
       {/* Section 4 — Cinematic sticky scroll */}
       <CinematicSection />
