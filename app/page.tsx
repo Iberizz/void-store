@@ -3,6 +3,7 @@ import Hero from '@/components/home/Hero'
 import Marquee from '@/components/home/Marquee'
 import ManifestoSection from '@/components/home/ManifestoSection'
 import StatsSection from '@/components/home/StatsSection'
+import CinematicSection from '@/components/home/CinematicSection'
 import CollectionPreview from '@/components/home/CollectionPreview'
 import FinalCTA from '@/components/home/FinalCTA'
 import Footer from '@/components/layout/Footer'
@@ -25,7 +26,10 @@ export default function Home() {
       {/* Section 3 — Stats */}
       <StatsSection />
 
-      {/* Section 4 — Collection Preview */}
+      {/* Section 4 — Cinematic sticky scroll */}
+      <CinematicSection />
+
+      {/* Section 5 — Collection Preview */}
       <CollectionPreview />
 
       {/* Section 5 — Final CTA */}

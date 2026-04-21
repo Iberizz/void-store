@@ -2,6 +2,7 @@
 
 import { useRef, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { SplitText } from 'gsap/SplitText'
@@ -19,12 +20,13 @@ interface Product {
   priceLabel: string
   tag: string
   slug: string
+  image: string
 }
 
 const PRODUCTS: Product[] = [
-  { id: 'void-pro',    ref: '001', name: 'VØID Pro',    price: 890,  priceLabel: '€890',   tag: 'Best Seller', slug: 'void-pro'    },
-  { id: 'void-air',    ref: '002', name: 'VØID Air',    price: 590,  priceLabel: '€590',   tag: 'New',         slug: 'void-air'    },
-  { id: 'void-studio', ref: '003', name: 'VØID Studio', price: 1290, priceLabel: '€1,290', tag: 'Limited',     slug: 'void-studio' },
+  { id: 'void-pro',    ref: '001', name: 'VØID Pro',    price: 890,  priceLabel: '€890',   tag: 'Best Seller', slug: 'void-pro',    image: '/images/void-pro-916.png'    },
+  { id: 'void-air',    ref: '002', name: 'VØID Air',    price: 590,  priceLabel: '€590',   tag: 'New',         slug: 'void-air',    image: '/images/void-air-916.png'    },
+  { id: 'void-studio', ref: '003', name: 'VØID Studio', price: 1290, priceLabel: '€1,290', tag: 'Limited',     slug: 'void-studio', image: '/images/void-studio-916.png' },
 ]
 
 /* ─── ProductCard ─────────────────────────────────────────── */
@@ -70,7 +72,14 @@ function ProductCard({ product }: { product: Product }) {
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault()
-    addItem({ id: product.id, name: product.name, price: product.price, quantity: 1 })
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: 1,
+      slug: product.slug,
+      image: product.image
+    })
   }
 
   return (
@@ -96,7 +105,7 @@ function ProductCard({ product }: { product: Product }) {
         />
 
         {/* Image zone */}
-        <div className="relative aspect-[3/4] bg-[#080808] overflow-hidden">
+        <div className="relative aspect-[9/16] bg-[#080808] overflow-hidden">
           {/* Tag */}
           <span className="absolute top-4 left-4 z-10 font-sans font-light text-[9px] tracking-[0.2em] text-[#4DFFB4] uppercase">
             {product.tag}
@@ -107,14 +116,16 @@ function ProductCard({ product }: { product: Product }) {
             {product.ref}
           </span>
 
-          {/* Placeholder — replace with next/image when assets are ready */}
-          <div className="absolute inset-0 flex items-center justify-center select-none" aria-hidden="true">
-            <span
-              className="font-display font-medium text-[#1C1C1C]"
-              style={{ fontSize: 'clamp(3rem, 8vw, 6rem)', letterSpacing: '-0.04em' }}
-            >
-              VØID
-            </span>
+          <div className="absolute inset-0 p-4">
+            <div className="relative w-full h-full">
+              <Image
+                src={product.image}
+                alt={product.name}
+                fill
+                className="object-contain"
+                sizes="(max-width: 768px) 100vw, 33vw"
+              />
+            </div>
           </div>
 
           {/* Add to cart — slide up on hover */}
