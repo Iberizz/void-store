@@ -223,7 +223,7 @@ export default function Hero() {
               inset:      0,
               background: 'linear-gradient(to bottom, #E8E8E8, transparent)',
               transformOrigin: 'top center',
-              scaleY:     0,
+              transform: 'scaleY(0)',
             }}
           />
         </div>
