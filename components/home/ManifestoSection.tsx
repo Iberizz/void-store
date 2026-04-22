@@ -12,7 +12,25 @@ const MANIFESTO =
   'Two drivers. Zero compromise. Every material chosen for silence. Forty hours. One charge. No excuses.'
 
 export default function ManifestoSection() {
-  const specsRef = useRef<HTMLDivElement>(null)
+  const specsRef   = useRef<HTMLDivElement>(null)
+  const sectionRef = useRef<HTMLElement>(null)
+  const videoRef   = useRef<HTMLVideoElement>(null)
+
+  // IntersectionObserver — play/pause selon visibilité
+  useEffect(() => {
+    const section = sectionRef.current
+    const video   = videoRef.current
+    if (!section || !video) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) video.play().catch(() => {})
+        else video.pause()
+      },
+      { threshold: 0.1 }
+    )
+    observer.observe(section)
+    return () => observer.disconnect()
+  }, [])
 
   useEffect(() => {
     const specs = specsRef.current
@@ -38,9 +56,31 @@ export default function ManifestoSection() {
 
   return (
     <section
-      className="relative z-10 min-h-screen flex flex-col justify-center px-8 md:px-24 bg-transparent overflow-hidden"
+      ref={sectionRef}
+      className="relative z-10 min-h-screen flex flex-col justify-center px-8 md:px-24 bg-[#000000] overflow-hidden"
       aria-label="Manifeste VØID"
     >
+      {/* Vidéo headphone exploded */}
+      <video
+        ref={videoRef}
+        src="/videos/headphone-exploded.mp4"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="none"
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          top: '50%', right: 0,
+          transform: 'translateY(-50%)',
+          height: '70%', width: 'auto',
+          objectFit: 'contain',
+          zIndex: 2,
+          pointerEvents: 'none',
+        }}
+      />
+
       {/* ① Background number */}
       <span
         className="absolute top-1/2 left-8 -translate-y-1/2 font-display font-medium leading-none select-none pointer-events-none"
@@ -51,7 +91,7 @@ export default function ManifestoSection() {
         }}
         aria-hidden="true"
       >
-        01
+        VID.
       </span>
 
       {/* Main content */}
@@ -66,7 +106,7 @@ export default function ManifestoSection() {
           />
           <WordReveal
             text={MANIFESTO}
-            className="font-sans font-light text-3xl md:text-5xl leading-[1.4] max-w-3xl text-[#E8E8E8]"
+            className="font-sans font-light text-xl md:text-3xl leading-[1.6] max-w-3xl text-[#E8E8E8]"
           />
         </div>
 

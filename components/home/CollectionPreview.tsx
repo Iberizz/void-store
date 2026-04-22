@@ -105,7 +105,7 @@ function ProductCard({ product }: { product: Product }) {
         />
 
         {/* Image zone */}
-        <div className="relative aspect-[9/16] bg-[#080808] overflow-hidden">
+        <div className="relative aspect-[3/4] bg-[#080808] overflow-hidden">
           {/* Tag */}
           <span className="absolute top-4 left-4 z-10 font-sans font-light text-[9px] tracking-[0.2em] text-[#4DFFB4] uppercase">
             {product.tag}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ShoppingBag } from 'lucide-react'
@@ -87,6 +87,22 @@ export default function Navbar() {
     setIsOpen(false)
   }, [pathname])
 
+  /* ── Logo click: refresh if already on home ── */
+  const handleLogoClick = useCallback((e: React.MouseEvent) => {
+    if (pathname === '/') {
+      e.preventDefault()
+      window.location.reload()
+    }
+  }, [pathname])
+
+  /* ── Nav link click: scroll to top if same page ── */
+  const handleNavClick = useCallback((e: React.MouseEvent, href: string) => {
+    if (pathname === href || pathname.startsWith(href + '/')) {
+      e.preventDefault()
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }, [pathname])
+
   const toggleMenu = () => {
     const tl = tlRef.current
     if (!tl) return
@@ -113,6 +129,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link
             href="/"
+            onClick={handleLogoClick}
             className="font-display font-medium text-[#E8E8E8] tracking-tighter text-base leading-none select-none"
             aria-label="VØID — Retour à l'accueil"
             data-cursor="pointer"
@@ -129,6 +146,7 @@ export default function Navbar() {
                   <li key={href} className="relative flex flex-col items-center gap-1">
                     <Link
                       href={href}
+                      onClick={(e) => handleNavClick(e, href)}
                       className="font-sans font-light text-sm tracking-wide transition-colors duration-200"
                       style={{ color: isActive ? '#E8E8E8' : '#666666' }}
                       aria-label={label}
@@ -194,7 +212,7 @@ export default function Navbar() {
                 href={href}
                 className="font-display text-[clamp(2.5rem,10vw,5rem)] font-medium tracking-tighter leading-none transition-colors duration-200"
                 style={{ color: isActive ? '#4DFFB4' : '#E8E8E8' }}
-                onClick={toggleMenu}
+                onClick={(e) => { handleNavClick(e, href); toggleMenu() }}
                 aria-label={label}
                 aria-current={isActive ? 'page' : undefined}
                 data-cursor="pointer"

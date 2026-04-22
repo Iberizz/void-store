@@ -14,10 +14,11 @@ interface ProductCardProps {
   imageSrc: string
   size?: 'large' | 'small'
   delay?: number
+  tilt?: boolean
 }
 
 export default function ProductCard({
-  name, price, category, slug, imageSrc, size = 'small', delay = 0,
+  name, price, category, slug, imageSrc, size = 'small', delay = 0, tilt = true,
 }: ProductCardProps) {
   const wrapRef  = useRef<HTMLDivElement>(null)
   const cardRef  = useRef<HTMLDivElement>(null)
@@ -56,10 +57,10 @@ export default function ProductCard({
         <div
           ref={cardRef}
           className="relative w-full h-full bg-[#0F0F0F] overflow-hidden"
-          style={{ transformStyle: 'preserve-3d' }}
-          onMouseMove={onMouseMove}
+          style={tilt ? { transformStyle: 'preserve-3d' } : undefined}
+          onMouseMove={tilt ? onMouseMove : undefined}
           onMouseEnter={onMouseEnter}
-          onMouseLeave={onMouseLeave}
+          onMouseLeave={tilt ? onMouseLeave : () => gsap.to(imageRef.current, { scale: 1, duration: 0.6, ease: 'power2.out' })}
         >
           {/* Category tag */}
           <span className="absolute top-4 left-4 z-10 font-sans font-light uppercase text-[#4DFFB4]"

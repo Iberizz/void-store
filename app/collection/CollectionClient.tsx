@@ -7,20 +7,22 @@ const FILTERS = ['All', 'Over-ear', 'In-ear', 'Studio'] as const
 type Filter   = typeof FILTERS[number]
 
 const PRODUCTS = [
-  { id: 'void-pro',    name: 'VØID Pro',    price: '€890',   category: 'Over-ear', slug: 'void-pro',    imageSrc: '/images/void-pro.png'    },
-  { id: 'void-air',    name: 'VØID Air',    price: '€590',   category: 'In-ear',   slug: 'void-air',    imageSrc: '/images/void-air.png'    },
-  { id: 'void-studio', name: 'VØID Studio', price: '€1,290', category: 'Studio',   slug: 'void-studio', imageSrc: '/images/void-studio.png' },
+  { id: 'void-pro',         name: 'VØID Pro',         price: '€890',   category: 'Over-ear', slug: 'void-pro',    imageSrc: '/images/void-pro-transparent.png' },
+  { id: 'void-air',         name: 'VØID Air',         price: '€590',   category: 'In-ear',   slug: 'void-air',    imageSrc: '/images/void-air-transparent.png' },
+  { id: 'void-studio',      name: 'VØID Studio',      price: '€1,290', category: 'Studio',   slug: 'void-studio', imageSrc: '/images/void-studio-transparent.png'},
+  { id: 'void-pro-white',   name: 'VØID Pro White',   price: '€890',   category: 'Over-ear', slug: 'void-pro',    imageSrc: '/images/void-pro-white.png'   },
+  { id: 'void-air-white',   name: 'VØID Air White',   price: '€590',   category: 'In-ear',   slug: 'void-air',    imageSrc: '/images/void-air-white-transparent.png'   },
+  { id: 'void-studio-white',name: 'VØID Studio White',price: '€1,290', category: 'Studio',   slug: 'void-studio', imageSrc: '/images/void-studio-white.png'},
 ]
 
 export default function CollectionClient() {
   const [active, setActive] = useState<Filter>('All')
 
-  const filtered          = active === 'All' ? PRODUCTS : PRODUCTS.filter(p => p.category === active)
-  const [hero, ...rest]   = filtered
+  const filtered = active === 'All' ? PRODUCTS : PRODUCTS.filter(p => p.category === active)
 
-  // Group remaining products in pairs for asymmetric rows
-  const rows: Array<typeof rest> = []
-  for (let i = 0; i < rest.length; i += 2) rows.push(rest.slice(i, i + 2))
+  // Group in rows of 3 — last row may have fewer items
+  const rows: Array<typeof filtered> = []
+  for (let i = 0; i < filtered.length; i += 3) rows.push(filtered.slice(i, i + 3))
 
   return (
     <>
@@ -40,28 +42,22 @@ export default function CollectionClient() {
         ))}
       </div>
 
-      {/* ── Section 1 — Hero card full-width ── */}
-      {hero && (
-        <div className="w-full" style={{ height: '70vh' }}>
-          {(() => { const { id: _id, ...props } = hero; return <ProductCard {...props} size="large" delay={0} /> })()}
-        </div>
-      )}
-
-      {/* ── Section 2 — Symmetric grid ── */}
-      {rows.map((pair, rowIdx) => (
+      {/* ── Grid — 3 colonnes fixes, chaque card = 1/3 ── */}
+      {rows.map((row, rowIdx) => (
         <div
           key={rowIdx}
           className="grid gap-px bg-[#000000]"
-          style={{ gridTemplateColumns: '1fr 1fr', height: '70vh' }}
+          style={{ gridTemplateColumns: 'repeat(3, 1fr)', height: '60vh' }}
         >
-          {pair.map((product, colIdx) => {
+          {row.map((product, colIdx) => {
             const { id, ...cardProps } = product
             return (
               <div key={id} className="relative overflow-hidden">
                 <ProductCard
                   {...cardProps}
                   size="large"
-                  delay={(rowIdx * 2 + colIdx + 1) * 0.15}
+                  delay={(rowIdx * 3 + colIdx) * 0.1}
+                  tilt={false}
                 />
               </div>
             )

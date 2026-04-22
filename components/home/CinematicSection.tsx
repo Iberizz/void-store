@@ -21,11 +21,12 @@ const SLIDES: Slide[] = [
   { label: 'Drivers',    title: '40mm beryllium', stat: 'Dual configuration',      imageSrc: '/images/slide-drivers.png', alt: 'VØID — drivers beryllium 40mm dual configuration'   },
   { label: 'Battery',    title: '48h autonomy',   stat: 'One charge. No excuses.', imageSrc: '/images/slide-battery.png', alt: 'VØID — batterie 48h une seule charge'               },
   { label: 'Silence',    title: 'ANC −42dB',      stat: 'Total silence',           imageSrc: '/images/slide-anc.png',    alt: 'VØID — réduction bruit active ANC moins 42 décibels' },
-  { label: 'Collection', title: 'VØID Pro',        cta: { label: 'Discover →', href: '/product/void-pro' }, imageSrc: '/images/slide-hero.png', alt: 'VØID Pro — casque audio premium AW25' },
+  { label: 'Collection', title: 'VØID Pro',        cta: { label: 'Discover →', href: '/collection' }, imageSrc: '/images/slide-hero.png', alt: 'VØID Pro — casque audio premium AW25' },
 ]
 
 export default function CinematicSection() {
   const sectionRef  = useRef<HTMLElement>(null)
+  const stickyRef   = useRef<HTMLDivElement>(null)
   const overlayRef  = useRef<HTMLDivElement>(null)
   const slidesRef   = useRef<(HTMLDivElement | null)[]>([])
   const imagesRef   = useRef<(HTMLDivElement | null)[]>([])
@@ -60,10 +61,22 @@ export default function CinematicSection() {
     const ctx = gsap.context(() => {
       ScrollTrigger.create({
         trigger: section, start: 'top 60%', end: 'bottom 40%',
-        onEnter:     () => gsap.to(overlayRef.current, { opacity: 1, duration: 0.6, ease: 'power2.out' }),
-        onLeave:     () => gsap.to(overlayRef.current, { opacity: 0, duration: 0.6, ease: 'power2.out' }),
-        onEnterBack: () => gsap.to(overlayRef.current, { opacity: 1, duration: 0.6, ease: 'power2.out' }),
-        onLeaveBack: () => gsap.to(overlayRef.current, { opacity: 0, duration: 0.6, ease: 'power2.out' }),
+        onEnter: () => {
+          gsap.to(stickyRef.current, { opacity: 1, duration: 0.5, ease: 'power2.out' })
+          gsap.to(overlayRef.current, { opacity: 1, duration: 0.6, ease: 'power2.out' })
+        },
+        onLeave: () => {
+          gsap.to(overlayRef.current, { opacity: 0, duration: 0.4, ease: 'power2.out' })
+          gsap.to(stickyRef.current, { opacity: 0, duration: 0.5, ease: 'power2.out', delay: 0.1 })
+        },
+        onEnterBack: () => {
+          gsap.to(stickyRef.current, { opacity: 1, duration: 0.5, ease: 'power2.out' })
+          gsap.to(overlayRef.current, { opacity: 1, duration: 0.6, ease: 'power2.out' })
+        },
+        onLeaveBack: () => {
+          gsap.to(overlayRef.current, { opacity: 0, duration: 0.4, ease: 'power2.out' })
+          gsap.to(stickyRef.current, { opacity: 0, duration: 0.5, ease: 'power2.out', delay: 0.1 })
+        },
       })
       ScrollTrigger.create({
         trigger: section, start: 'top top', end: 'bottom bottom',
@@ -77,7 +90,7 @@ export default function CinematicSection() {
 
   return (
     <section ref={sectionRef} className="relative z-10" style={{ height: '400vh' }} aria-label="Caractéristiques VØID">
-      <div className="sticky top-0 h-screen overflow-hidden" style={{ zIndex: 6 }}>
+      <div ref={stickyRef} className="sticky top-0 h-screen overflow-hidden" style={{ zIndex: 6, background: '#000000', opacity: 0 }}>
 
         {/* White overlay */}
         <div ref={overlayRef} className="absolute inset-0 bg-[#FFFFFF] pointer-events-none" style={{ opacity: 0, zIndex: 0 }} aria-hidden="true" />

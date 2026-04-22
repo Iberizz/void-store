@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import gsap from 'gsap'
 import { SplitText } from 'gsap/SplitText'
@@ -9,13 +9,76 @@ gsap.registerPlugin(SplitText)
 
 const HEADLINE      = 'SILENCE.'
 const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#%&*'
+const ITEMS         = ['SILENCE', 'REDEFINED', 'PREMIUM AUDIO', 'AW25', 'ENGINEERED SOUND', 'VØID']
 
+/* ── Marquee row ── */
+function MarqueeRow({ direction }: { direction: 'left' | 'right' }) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const trackRef     = useRef<HTMLUListElement>(null)
+  const copiesRef    = useRef(3)
+  const [copies, setCopies] = useState(3)
+
+  useEffect(() => {
+    const container = containerRef.current
+    const track     = trackRef.current
+    if (!container || !track) return
+
+    const recalculate = () => {
+      const trackWidth = track.scrollWidth
+      if (!trackWidth) return
+      const singleW   = trackWidth / copiesRef.current
+      const newCopies = Math.ceil(window.innerWidth / singleW) + 2
+      if (newCopies !== copiesRef.current) {
+        copiesRef.current = newCopies
+        setCopies(newCopies)
+      }
+    }
+
+    const ro = new ResizeObserver(recalculate)
+    ro.observe(container)
+    recalculate()
+    return () => ro.disconnect()
+  }, [])
+
+  const repeated = Array.from({ length: copies }, () => ITEMS).flat()
+  const offset   = `${(100 / copies).toFixed(4)}%`
+
+  return (
+    <div ref={containerRef} className="overflow-hidden">
+      <ul
+        ref={trackRef}
+        role="list"
+        style={{
+          display:    'flex',
+          willChange: 'transform',
+          '--marquee-offset': `-${offset}`,
+          animation: `${direction === 'left' ? 'scroll-left' : 'scroll-right'} ${direction === 'left' ? '25s' : '35s'} linear infinite`,
+        } as React.CSSProperties}
+      >
+        {repeated.map((item, i) => (
+          <li
+            key={i}
+            className="flex items-center gap-6 shrink-0 font-sans font-light text-sm tracking-[0.15em] uppercase"
+            style={{ color: '#444444' }}
+          >
+            {item}
+            <span style={{ color: '#4DFFB4' }} aria-hidden="true">·</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+/* ── Hero ── */
 export default function Hero() {
   const badgeRef    = useRef<HTMLDivElement>(null)
   const headlineRef = useRef<HTMLHeadingElement>(null)
   const subtitleRef = useRef<HTMLParagraphElement>(null)
   const ctaRef      = useRef<HTMLDivElement>(null)
   const scrollRef   = useRef<HTMLDivElement>(null)
+  const scrollLineRef = useRef<HTMLDivElement>(null)
+  const marqueeRef  = useRef<HTMLDivElement>(null)
   const tickersRef  = useRef<Function[]>([])
 
   useEffect(() => {
@@ -78,18 +141,24 @@ export default function Hero() {
         })
       }
 
-      gsap.fromTo(
-        scrollRef.current,
-        { opacity: 0 },
-        {
-          opacity: 1, duration: 0.6, delay: 1.8, ease: 'power2.out',
-          onComplete: () => {
-            gsap.to(scrollRef.current, {
-              y: 8, duration: 1.4, ease: 'power2.inOut', repeat: -1, yoyo: true,
-            })
-          },
-        }
-      )
+      gsap.from(scrollRef.current, {
+        opacity: 0, duration: 0.6, delay: 1.8, ease: 'power2.out',
+        onComplete: () => {
+          // Pulse: a bright segment travels down the line on loop
+          gsap.fromTo(
+            scrollLineRef.current,
+            { scaleY: 0, transformOrigin: 'top center', opacity: 1 },
+            {
+              scaleY: 1, transformOrigin: 'top center', opacity: 0,
+              duration: 1.4, ease: 'power2.inOut', repeat: -1, repeatDelay: 0.4,
+            }
+          )
+        },
+      })
+
+      gsap.from(marqueeRef.current, {
+        opacity: 0, duration: 0.6, delay: 2.0, ease: 'power2.out',
+      })
     })
 
     return () => {
@@ -102,7 +171,7 @@ export default function Hero() {
 
   return (
     <section
-      className="relative z-10 min-h-screen overflow-hidden pointer-events-none"
+      className="relative z-10 min-h-screen overflow-hidden pointer-events-none flex flex-col"
       aria-label="Hero VØID"
     >
       {/* Bottom gradient — text readability over 3D canvas */}
@@ -126,8 +195,42 @@ export default function Hero() {
         </span>
       </div>
 
+      {/* Scroll indicator — right side, middle */}
+      <div
+        ref={scrollRef}
+        className="absolute right-8 md:right-12 top-1/2 -translate-y-1/2 flex flex-col items-center gap-3 pointer-events-none"
+        aria-hidden="true"
+      >
+        <span
+          className="font-sans font-light text-[#444444] uppercase"
+          style={{
+            fontSize:        '9px',
+            letterSpacing:   '0.2em',
+            writingMode:     'vertical-rl',
+            textOrientation: 'mixed',
+          }}
+        >
+          scroll
+        </span>
+
+        {/* Static rail */}
+        <div style={{ position: 'relative', width: '1px', height: '64px', background: '#1C1C1C' }}>
+          {/* Animated pulse */}
+          <div
+            ref={scrollLineRef}
+            style={{
+              position:   'absolute',
+              inset:      0,
+              background: 'linear-gradient(to bottom, #E8E8E8, transparent)',
+              transformOrigin: 'top center',
+              scaleY:     0,
+            }}
+          />
+        </div>
+      </div>
+
       {/* Content — anchored bottom */}
-      <div className="relative flex flex-col justify-end min-h-screen pb-16 gap-6 px-8 md:px-16">
+      <div className="relative flex flex-col justify-end flex-1 pb-6 gap-6 px-8 md:px-16">
         <h1
           ref={headlineRef}
           className="font-display font-medium text-[#E8E8E8] leading-none select-none"
@@ -164,18 +267,14 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Scroll chevron */}
+      {/* Marquee — fused at bottom */}
       <div
-        ref={scrollRef}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none"
+        ref={marqueeRef}
+        className="relative z-10 bg-[#080808] py-6 overflow-hidden border-t border-[#1C1C1C] flex flex-col gap-y-3 pointer-events-none"
         aria-hidden="true"
       >
-        <span className="font-sans font-light text-[9px] tracking-[0.2em] text-[#444444] uppercase">
-          scroll
-        </span>
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-          <path d="M4 7L10 13L16 7" stroke="#666666" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        <MarqueeRow direction="left" />
+        <MarqueeRow direction="right" />
       </div>
     </section>
   )
