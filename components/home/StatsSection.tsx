@@ -79,7 +79,7 @@ export default function StatsSection() {
   return (
     <section
       ref={sectionRef}
-      className="bg-[#080808] border-y border-[#1C1C1C]"
+      className="bg-[#080808] border-y border-[#1C1C1C] mb-32 md:mb-72"
       aria-label="VØID — Chiffres clés"
     >
       <div

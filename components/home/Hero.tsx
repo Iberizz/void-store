@@ -190,7 +190,7 @@ export default function Hero() {
         className="absolute top-24 left-8 md:left-16 border border-[#333333] px-5 py-2"
         aria-label="Collection automne-hiver 2025"
       >
-        <span className="font-sans font-light text-[10px] tracking-[0.25em] text-[#666666] uppercase">
+        <span className="font-sans font-light text-[10px] tracking-[0.25em] text-[#4DFFB4] uppercase">
           AW25 Collection
         </span>
       </div>
@@ -233,7 +233,7 @@ export default function Hero() {
       <div className="relative flex flex-col justify-end flex-1 pb-6 gap-6 px-8 md:px-16">
         <h1
           ref={headlineRef}
-          className="font-display font-medium text-[#E8E8E8] leading-none select-none"
+          className="font-display font-medium text-[#4DFFB4] leading-none select-none"
           style={{ fontSize: 'clamp(4rem, 20vw, 22rem)', letterSpacing: '-0.04em', opacity: 0 }}
           aria-label={HEADLINE}
         >
