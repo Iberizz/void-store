@@ -24,9 +24,9 @@ interface Product {
 }
 
 const PRODUCTS: Product[] = [
-  { id: 'void-pro',    ref: '001', name: 'VØID Pro',    price: 890,  priceLabel: '€890',   tag: 'Best Seller', slug: 'void-pro',    image: '/images/void-pro-916.png'    },
-  { id: 'void-air',    ref: '002', name: 'VØID Air',    price: 590,  priceLabel: '€590',   tag: 'New',         slug: 'void-air',    image: '/images/void-air-916.png'    },
-  { id: 'void-studio', ref: '003', name: 'VØID Studio', price: 1290, priceLabel: '€1,290', tag: 'Limited',     slug: 'void-studio', image: '/images/void-studio-916.png' },
+  { id: 'void-pro',    ref: '001', name: 'VØID Pro',    price: 890,  priceLabel: '€890',   tag: 'Best Seller', slug: 'void-pro',    image: '/images/void-pro-transparent.png'    },
+  { id: 'void-air',    ref: '002', name: 'VØID Air',    price: 590,  priceLabel: '€590',   tag: 'New',         slug: 'void-air',    image: '/images/void-air-transparent.png'    },
+  { id: 'void-studio', ref: '003', name: 'VØID Studio', price: 1290, priceLabel: '€1,290', tag: 'Limited',     slug: 'void-studio', image: '/images/void-studio-transparent.png' },
 ]
 
 /* ─── ProductCard ─────────────────────────────────────────── */

@@ -10,9 +10,9 @@ const PRODUCTS = [
   { id: 'void-pro',         name: 'VØID Pro',         price: '€890',   category: 'Over-ear', slug: 'void-pro',    imageSrc: '/images/void-pro-transparent.png' },
   { id: 'void-air',         name: 'VØID Air',         price: '€590',   category: 'In-ear',   slug: 'void-air',    imageSrc: '/images/void-air-transparent.png' },
   { id: 'void-studio',      name: 'VØID Studio',      price: '€1,290', category: 'Studio',   slug: 'void-studio', imageSrc: '/images/void-studio-transparent.png'},
-  { id: 'void-pro-white',   name: 'VØID Pro White',   price: '€890',   category: 'Over-ear', slug: 'void-pro',    imageSrc: '/images/void-pro-white.png'   },
+  { id: 'void-pro-white',   name: 'VØID Pro White',   price: '€890',   category: 'Over-ear', slug: 'void-pro',    imageSrc: '/images/void-pro-white-transparent.png'   },
   { id: 'void-air-white',   name: 'VØID Air White',   price: '€590',   category: 'In-ear',   slug: 'void-air',    imageSrc: '/images/void-air-white-transparent.png'   },
-  { id: 'void-studio-white',name: 'VØID Studio White',price: '€1,290', category: 'Studio',   slug: 'void-studio', imageSrc: '/images/void-studio-white.png'},
+  { id: 'void-studio-white',name: 'VØID Studio White',price: '€1,290', category: 'Studio',   slug: 'void-studio', imageSrc: '/images/void-studio-white-transparent.png'},
 ]
 
 export default function CollectionClient() {
@@ -42,11 +42,12 @@ export default function CollectionClient() {
         ))}
       </div>
 
+      <div className="mx-24 items-center">
       {/* ── Grid — 3 colonnes fixes, chaque card = 1/3 ── */}
       {rows.map((row, rowIdx) => (
         <div
           key={rowIdx}
-          className="grid gap-px bg-[#000000]"
+          className="grid gap-2 my-2 bg-[#000000]"
           style={{ gridTemplateColumns: 'repeat(3, 1fr)', height: '60vh' }}
         >
           {row.map((product, colIdx) => {
@@ -62,8 +63,10 @@ export default function CollectionClient() {
               </div>
             )
           })}
+
         </div>
       ))}
+      </div>
     </>
   )
 }

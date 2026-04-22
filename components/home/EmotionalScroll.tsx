@@ -8,29 +8,36 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const PANELS = [
+type Panel = {
+  watermark: string
+  word: string
+  phrase: string
+  cta?: boolean
+}
+
+const PANELS: Panel[] = [
   {
     watermark: 'Silence.',
-    word:      'SILENCE',
-    phrase:    'Engineered to block the world out. ANC −42 dB of pure absence.',
+    word: 'SILENCE',
+    phrase: 'Engineered to block the world out. ANC −42 dB of pure absence.',
   },
   {
     watermark: 'Clarity.',
-    word:      'CLARITY',
-    phrase:    'Beryllium drivers, tuned to the edge of perception. Nothing added. Nothing lost.',
+    word: 'CLARITY',
+    phrase: 'Beryllium drivers, tuned to the edge of perception. Nothing added. Nothing lost.',
   },
   {
     watermark: 'Presence.',
-    word:      'PRESENCE',
-    phrase:    "48 hours. One charge. The music stays — the battery anxiety doesn't.",
+    word: 'PRESENCE',
+    phrase: "48 hours. One charge. The music stays — the battery anxiety doesn't.",
   },
   {
     watermark: 'VØID.',
-    word:      'VØID',
-    phrase:    'Two drivers. Zero compromise. This is the instrument.',
-    cta:       true,
+    word: 'VØID',
+    phrase: 'Two drivers. Zero compromise. This is the instrument.',
+    cta: true,
   },
-] as const
+]
 
 export default function EmotionalScroll() {
   const sectionRef    = useRef<HTMLElement>(null)
