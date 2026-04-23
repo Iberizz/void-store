@@ -2,11 +2,10 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { Pencil, Plus, Palette } from 'lucide-react'
-import ProductEditModal    from '@/components/admin/ProductEditModal'
-import ProductCreateModal  from '@/components/admin/ProductCreateModal'
-import ProductColorsModal  from '@/components/admin/ProductColorsModal'
-import AdminSearchBar      from '@/components/admin/AdminSearchBar'
+import { Pencil, Plus } from 'lucide-react'
+import ProductEditModal   from '@/components/admin/ProductEditModal'
+import ProductCreateModal from '@/components/admin/ProductCreateModal'
+import AdminSearchBar     from '@/components/admin/AdminSearchBar'
 
 type Product = {
   id: string; name: string; price: number; category: string
@@ -15,12 +14,11 @@ type Product = {
 }
 
 export default function AdminProductsClient({ products }: { products: Product[] }) {
-  const [editing,        setEditing]        = useState<Product | null>(null)
-  const [creating,       setCreating]       = useState(false)
-  const [colorProduct,   setColorProduct]   = useState<Product | null>(null)
-  const [query,          setQuery]          = useState('')
+  const [editing,  setEditing]  = useState<Product | null>(null)
+  const [creating, setCreating] = useState(false)
+  const [query,    setQuery]    = useState('')
 
-  const filtered     = query.trim()
+  const filtered = query.trim()
     ? products.filter(p =>
         p.name.toLowerCase().includes(query.toLowerCase()) ||
         p.category.toLowerCase().includes(query.toLowerCase())
@@ -103,10 +101,6 @@ export default function AdminProductsClient({ products }: { products: Product[] 
                 </div>
 
                 <div className="flex items-center gap-1">
-                  <button onClick={() => setColorProduct(product)} aria-label={`Manage colors — ${product.name}`}
-                    className="p-2 text-void-muted hover:text-void-green transition-colors duration-200">
-                    <Palette size={14} strokeWidth={1.5} />
-                  </button>
                   <button onClick={() => setEditing(product)} aria-label={`Edit ${product.name}`}
                     className="p-2 text-void-muted hover:text-void-green transition-colors duration-200">
                     <Pencil size={14} strokeWidth={1.5} />
@@ -127,9 +121,8 @@ export default function AdminProductsClient({ products }: { products: Product[] 
         </div>
       </div>
 
-      <ProductEditModal    product={editing}       onClose={() => setEditing(null)} />
-      <ProductCreateModal  open={creating}         onClose={() => setCreating(false)} />
-      <ProductColorsModal  product={colorProduct}  onClose={() => setColorProduct(null)} />
+      <ProductEditModal   product={editing}  onClose={() => setEditing(null)} />
+      <ProductCreateModal open={creating}    onClose={() => setCreating(false)} />
     </>
   )
 }

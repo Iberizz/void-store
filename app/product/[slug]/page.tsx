@@ -29,7 +29,6 @@ export default async function ProductPage({ params, searchParams }: Props) {
 
   const initialColor = color === 'white' ? 'white' : 'black'
 
-  // Fetch live stock for both color variants
   const supabase = await createClient()
   const { data: stockRows } = await supabase
     .from('products')

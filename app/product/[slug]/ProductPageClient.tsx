@@ -15,7 +15,9 @@ interface Props {
 export default function ProductPageClient({ product, initialColor, stockByColor }: Props) {
   const [color, setColor] = useState<'black' | 'white'>(initialColor)
 
-  const stock = stockByColor[color]
+  const stock = color === 'black' ? stockByColor.black : stockByColor.white
+
+  const currentImages = color === 'black' ? product.images.black : product.images.white
 
   return (
     <main className="relative z-10 bg-[#000000] min-h-screen flex flex-col" aria-label={`Page produit ${product.name}`}>
@@ -41,7 +43,7 @@ export default function ProductPageClient({ product, initialColor, stockByColor 
         {/* Left — Gallery */}
         <div className="relative border-r border-[#1C1C1C]" style={{ minHeight: '60vh' }}>
           <ProductGallery
-            images={color === 'black' ? product.images.black : product.images.white}
+            images={currentImages}
             name={product.name}
             category={product.category}
           />
@@ -52,7 +54,7 @@ export default function ProductPageClient({ product, initialColor, stockByColor 
           <ProductInfo
             product={product}
             selectedColor={color}
-            onColorChange={setColor}
+            onColorChange={(c) => setColor(c as 'black' | 'white')}
             stock={stock}
           />
         </div>

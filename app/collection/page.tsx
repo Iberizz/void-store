@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import CollectionHero from '@/components/collection/CollectionHero'
+import CollectionHero   from '@/components/collection/CollectionHero'
 import CollectionClient from './CollectionClient'
 
 export const metadata: Metadata = {

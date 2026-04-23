@@ -7,10 +7,10 @@ import { useCartStore } from '@/lib/store'
 import type { ProductData } from '@/lib/products'
 
 interface Props {
-  product:         ProductData
-  selectedColor:   'black' | 'white'
-  onColorChange:   (c: 'black' | 'white') => void
-  stock?:          number | null   // null = unknown (no Supabase match)
+  product:       ProductData
+  selectedColor: 'black' | 'white'
+  onColorChange: (c: string) => void
+  stock?:        number | null
 }
 
 export default function ProductInfo({ product, selectedColor, onColorChange, stock = null }: Props) {
@@ -31,13 +31,16 @@ export default function ProductInfo({ product, selectedColor, onColorChange, sto
   const handleAddToCart = () => {
     if (outOfStock) return
 
+    const cartImage = selectedColor === 'white' ? product.images.white[0] : product.images.black[0]
+    const cartName  = selectedColor === 'white' ? `${product.name} White` : product.name
+
     addItem({
       id:       `${product.id}-${selectedColor}`,
       slug:     product.slug,
-      name:     `${product.name}${selectedColor === 'white' ? ' White' : ''}`,
+      name:     cartName,
       price:    product.price,
       quantity: qty,
-      image:    product.images[selectedColor][0],
+      image:    cartImage,
     })
 
     // Button: compress → spring
@@ -108,24 +111,23 @@ export default function ProductInfo({ product, selectedColor, onColorChange, sto
       </p>
 
       {/* Color selector */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-4 mb-6 flex-wrap">
         <span className="font-sans font-light text-[#444444] uppercase"
           style={{ fontSize: '10px', letterSpacing: '0.2em' }}>
           Color
         </span>
-        {(['black', 'white'] as const).map((c) => (
-          <button key={c} onClick={() => onColorChange(c)}
-            aria-label={`Couleur ${c}`} data-cursor="pointer"
-            style={{
-              width:  '20px', height: '20px',
-              borderRadius: '50%',
-              background:   c === 'black' ? '#1A1A1A' : '#E8E8E8',
-              border:       `2px solid ${selectedColor === c ? '#4DFFB4' : 'transparent'}`,
-              transition:   'border-color 0.2s ease',
-              cursor:       'pointer',
-            }}
-          />
-        ))}
+        {/* Black */}
+        <button onClick={() => onColorChange('black')}
+          aria-label="Black" data-cursor="pointer"
+          title="Black"
+          style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#1A1A1A', border: `2px solid ${selectedColor === 'black' ? '#4DFFB4' : 'transparent'}`, transition: 'border-color 0.2s ease', cursor: 'pointer' }}
+        />
+        {/* White */}
+        <button onClick={() => onColorChange('white')}
+          aria-label="White" data-cursor="pointer"
+          title="White"
+          style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#E8E8E8', border: `2px solid ${selectedColor === 'white' ? '#4DFFB4' : 'transparent'}`, transition: 'border-color 0.2s ease', cursor: 'pointer' }}
+        />
       </div>
 
       {/* Stock indicator */}

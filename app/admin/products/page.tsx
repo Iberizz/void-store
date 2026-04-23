@@ -6,10 +6,13 @@ export const metadata = { title: 'Products — VØID Admin' }
 
 export default async function AdminProductsPage() {
   const supabase = await createClient()
+
   const { data: products } = await supabase
     .from('products')
     .select('*')
     .order('price', { ascending: false })
 
-  return <AdminProductsClient products={products ?? []} />
+  return (
+    <AdminProductsClient products={products ?? []} />
+  )
 }

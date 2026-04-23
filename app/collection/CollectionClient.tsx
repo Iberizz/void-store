@@ -4,21 +4,23 @@ import { useState } from 'react'
 import ProductCard from '@/components/product/ProductCard'
 
 const FILTERS = ['All', 'Over-ear', 'In-ear', 'Studio'] as const
-type Filter   = typeof FILTERS[number]
+type Filter = typeof FILTERS[number]
 
 const PRODUCTS = [
-  { id: 'void-pro',          name: 'VØID Pro',          price: '€890',   category: 'Over-ear', slug: 'void-pro',                imageSrc: '/images/void-pro-transparent.png' },
-  { id: 'void-air',          name: 'VØID Air',          price: '€590',   category: 'In-ear',   slug: 'void-air',                imageSrc: '/images/void-air-transparent.png' },
-  { id: 'void-studio',       name: 'VØID Studio',       price: '€1,290', category: 'Studio',   slug: 'void-studio',             imageSrc: '/images/void-studio-transparent.png'          },
-  { id: 'void-pro-white',    name: 'VØID Pro White',    price: '€890',   category: 'Over-ear', slug: 'void-pro?color=white',    imageSrc: '/images/void-pro-white-transparent.png'       },
-  { id: 'void-air-white',    name: 'VØID Air White',    price: '€590',   category: 'In-ear',   slug: 'void-air?color=white',    imageSrc: '/images/void-air-white-transparent.png'       },
-  { id: 'void-studio-white', name: 'VØID Studio White', price: '€1,290', category: 'Studio',   slug: 'void-studio?color=white', imageSrc: '/images/void-studio-white-transparent.png'    },
+  { id: 'void-pro',          name: 'VØID Pro',          price: '€890',   category: 'Over-ear', slug: 'void-pro',              imageSrc: '/images/void-pro-transparent.png'       },
+  { id: 'void-air',          name: 'VØID Air',          price: '€590',   category: 'In-ear',   slug: 'void-air',              imageSrc: '/images/void-air-transparent.png'       },
+  { id: 'void-studio',       name: 'VØID Studio',       price: '€1,290', category: 'Studio',   slug: 'void-studio',           imageSrc: '/images/void-studio.png'                },
+  { id: 'void-pro-white',    name: 'VØID Pro White',    price: '€890',   category: 'Over-ear', slug: 'void-pro?color=white',  imageSrc: '/images/void-pro-white-transparent.png' },
+  { id: 'void-air-white',    name: 'VØID Air White',    price: '€590',   category: 'In-ear',   slug: 'void-air?color=white',  imageSrc: '/images/void-air-white-transparent.png' },
+  { id: 'void-studio-white', name: 'VØID Studio White', price: '€1,290', category: 'Studio',   slug: 'void-studio?color=white', imageSrc: '/images/void-studio-white.png'        },
 ]
 
 export default function CollectionClient() {
   const [active, setActive] = useState<Filter>('All')
 
-  const filtered = active === 'All' ? PRODUCTS : PRODUCTS.filter(p => p.category === active)
+  const filtered = active === 'All'
+    ? PRODUCTS
+    : PRODUCTS.filter(p => p.category === active)
 
   return (
     <>
@@ -38,7 +40,7 @@ export default function CollectionClient() {
         ))}
       </div>
 
-      {/* ── Grid — 1 col mobile · 2 cols tablet · 3 cols desktop ── */}
+      {/* ── Grid ── */}
       <div className="px-2 md:px-4 lg:px-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 my-2">
           {filtered.map((product, idx) => {
