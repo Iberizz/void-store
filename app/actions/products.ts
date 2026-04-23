@@ -62,6 +62,7 @@ export async function createProduct(payload: ProductCreate) {
 
   const admin = createAdminClient()
   const { error } = await admin.from('products').insert({
+    id:          payload.slug,
     slug:        payload.slug,
     name:        payload.name,
     price:       payload.price,
