@@ -10,17 +10,27 @@ interface Props {
   product:         ProductData
   selectedColor:   'black' | 'white'
   onColorChange:   (c: 'black' | 'white') => void
+  stock?:          number | null   // null = unknown (no Supabase match)
 }
 
-export default function ProductInfo({ product, selectedColor, onColorChange }: Props) {
-  const [qty,          setQty]          = useState(1)
+export default function ProductInfo({ product, selectedColor, onColorChange, stock = null }: Props) {
+  const [qty,           setQty]          = useState(1)
   const [openAccordion, setOpenAccordion] = useState(false)
-  const [wished,       setWished]       = useState(false)
-  const btnRef   = useRef<HTMLButtonElement>(null)
-  const addItem  = useCartStore((s) => s.addItem)
-  const openCart = useCartStore((s) => s.openCart)
+  const [wished,        setWished]        = useState(false)
+  const [added,         setAdded]         = useState(false)
+  const btnRef    = useRef<HTMLButtonElement>(null)
+  const labelRef  = useRef<HTMLSpanElement>(null)
+  const qtyRef    = useRef<HTMLSpanElement>(null)
+  const addItem   = useCartStore((s) => s.addItem)
+  const openCart  = useCartStore((s) => s.openCart)
+
+  const outOfStock = stock !== null && stock <= 0
+  const lowStock   = stock !== null && stock > 0 && stock <= 10
+  const maxQty     = stock !== null && stock > 0 ? stock : 99
 
   const handleAddToCart = () => {
+    if (outOfStock) return
+
     addItem({
       id:       `${product.id}-${selectedColor}`,
       slug:     product.slug,
@@ -29,11 +39,34 @@ export default function ProductInfo({ product, selectedColor, onColorChange }: P
       quantity: qty,
       image:    product.images[selectedColor][0],
     })
-    // Button flash
-    gsap.to(btnRef.current, { scale: 0.96, duration: 0.1, ease: 'power2.in',
-      onComplete: () => gsap.to(btnRef.current, { scale: 1, duration: 0.4, ease: 'elastic.out(1, 0.5)' })
+
+    // Button: compress → spring
+    gsap.killTweensOf(btnRef.current)
+    gsap.to(btnRef.current, { scaleX: 0.97, scaleY: 0.94, duration: 0.1, ease: 'power2.in',
+      onComplete: () => gsap.to(btnRef.current, { scaleX: 1, scaleY: 1, duration: 0.5, ease: 'elastic.out(1, 0.4)' })
     })
+
+    // Label swap: "Add to cart" → "Added ✓" → back
+    setAdded(true)
+    gsap.fromTo(labelRef.current, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.25, ease: 'expo.out' })
+    setTimeout(() => {
+      gsap.to(labelRef.current, { opacity: 0, y: -8, duration: 0.2, ease: 'power2.in',
+        onComplete: () => { setAdded(false); gsap.set(labelRef.current, { y: 0, opacity: 1 }) }
+      })
+    }, 1400)
+
     openCart()
+  }
+
+  const handleQtyChange = (delta: number) => {
+    const next = Math.min(Math.max(1, qty + delta), maxQty)
+    if (next === qty) return
+    setQty(next)
+    gsap.killTweensOf(qtyRef.current)
+    gsap.fromTo(qtyRef.current,
+      { y: delta > 0 ? 8 : -8, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.25, ease: 'expo.out' }
+    )
   }
 
   return (
@@ -75,7 +108,7 @@ export default function ProductInfo({ product, selectedColor, onColorChange }: P
       </p>
 
       {/* Color selector */}
-      <div className="flex items-center gap-4 mb-8">
+      <div className="flex items-center gap-4 mb-6">
         <span className="font-sans font-light text-[#444444] uppercase"
           style={{ fontSize: '10px', letterSpacing: '0.2em' }}>
           Color
@@ -95,29 +128,69 @@ export default function ProductInfo({ product, selectedColor, onColorChange }: P
         ))}
       </div>
 
+      {/* Stock indicator */}
+      {stock !== null && (
+        <div className="mb-6">
+          {outOfStock ? (
+            <p className="font-sans text-[#FF6B6B] uppercase flex items-center gap-2"
+              style={{ fontSize: '10px', letterSpacing: '0.2em' }}>
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#FF6B6B]" />
+              Out of stock
+            </p>
+          ) : lowStock ? (
+            <p className="font-sans text-[#F59E0B] uppercase flex items-center gap-2"
+              style={{ fontSize: '10px', letterSpacing: '0.2em' }}>
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#F59E0B]" />
+              Only {stock} left
+            </p>
+          ) : (
+            <p className="font-sans text-[#4DFFB4] uppercase flex items-center gap-2"
+              style={{ fontSize: '10px', letterSpacing: '0.2em' }}>
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#4DFFB4]" />
+              In stock
+            </p>
+          )}
+        </div>
+      )}
+
       {/* Qty + Add to cart */}
       <div className="flex items-stretch gap-3 mb-6">
         {/* Qty */}
-        <div className="flex items-center border border-[#1C1C1C]">
-          <button onClick={() => setQty(q => Math.max(1, q - 1))} aria-label="Diminuer" data-cursor="pointer"
-            className="px-3 py-4 text-[#666666] hover:text-[#E8E8E8] transition-colors duration-200">
+        <div className="flex items-center border border-[#1C1C1C]" style={{ opacity: outOfStock ? 0.3 : 1 }}>
+          <button onClick={() => handleQtyChange(-1)} aria-label="Diminuer" data-cursor="pointer"
+            disabled={outOfStock}
+            className="px-3 py-4 text-[#666666] hover:text-[#E8E8E8] transition-colors duration-200 disabled:pointer-events-none">
             <Minus size={14} />
           </button>
-          <span className="font-sans font-light text-[#E8E8E8] px-4" style={{ fontSize: '14px' }}>
+          <span ref={qtyRef} className="font-sans font-light text-[#E8E8E8] px-4 inline-block"
+            style={{ fontSize: '14px', minWidth: '28px', textAlign: 'center' }}>
             {qty}
           </span>
-          <button onClick={() => setQty(q => q + 1)} aria-label="Augmenter" data-cursor="pointer"
-            className="px-3 py-4 text-[#666666] hover:text-[#E8E8E8] transition-colors duration-200">
+          <button onClick={() => handleQtyChange(1)} aria-label="Augmenter" data-cursor="pointer"
+            disabled={outOfStock || qty >= maxQty}
+            className="px-3 py-4 text-[#666666] hover:text-[#E8E8E8] transition-colors duration-200 disabled:pointer-events-none disabled:opacity-30">
             <Plus size={14} />
           </button>
         </div>
 
         {/* Add to cart */}
-        <button ref={btnRef} onClick={handleAddToCart} data-cursor="pointer"
-          aria-label={`Ajouter ${product.name} au panier`}
-          className="flex-1 bg-[#4DFFB4] hover:bg-[#E8E8E8] text-[#000000] font-sans font-medium uppercase transition-colors duration-300"
-          style={{ fontSize: '11px', letterSpacing: '0.2em' }}>
-          Add to cart
+        <button
+          ref={btnRef}
+          onClick={handleAddToCart}
+          disabled={outOfStock}
+          data-cursor="pointer"
+          aria-label={outOfStock ? 'Out of stock' : `Ajouter ${product.name} au panier`}
+          className="flex-1 font-sans font-medium uppercase transition-colors duration-300 relative overflow-hidden disabled:cursor-not-allowed"
+          style={{
+            fontSize: '11px',
+            letterSpacing: '0.2em',
+            background: outOfStock ? '#1C1C1C' : added ? '#E8E8E8' : '#4DFFB4',
+            color: outOfStock ? '#444444' : '#000000',
+          }}
+        >
+          <span ref={labelRef} className="inline-block">
+            {outOfStock ? 'Out of stock' : added ? 'Added ✓' : 'Add to cart'}
+          </span>
         </button>
 
         {/* Wishlist */}

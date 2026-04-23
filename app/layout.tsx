@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import ClientProviders from '@/components/layout/ClientProviders'
 import Navbar from '@/components/layout/Navbar'
 import './globals.css'
+import Footer from "@/components/layout/Footer";
 
 export const metadata: Metadata = {
   title: 'VØID — Silence. Redefined.',
@@ -25,6 +26,7 @@ export default function RootLayout({
       <body className="bg-[#000000] text-[#F2F2F2] antialiased overflow-x-hidden">
         <Navbar />
         <ClientProviders>{children}</ClientProviders>
+        <Footer />
       </body>
     </html>
   )

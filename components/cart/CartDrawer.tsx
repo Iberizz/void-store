@@ -188,14 +188,16 @@ export default function CartDrawer() {
                 </div>
 
                 {/* CTA */}
-                <button
-                  className="w-full bg-[#4DFFB4] hover:bg-[#E8E8E8] text-[#000000] font-sans font-medium uppercase transition-colors duration-300 py-4"
+                <Link
+                  href="/checkout"
+                  onClick={closeCart}
+                  className="w-full bg-[#4DFFB4] hover:bg-[#E8E8E8] text-[#000000] font-sans font-medium uppercase transition-colors duration-300 py-4 text-center block"
                   style={{ fontSize: '11px', letterSpacing: '0.25em' }}
                   data-cursor="pointer"
                   aria-label="Passer la commande"
                 >
                   Checkout — €{subtotal.toLocaleString('fr-FR')}
-                </button>
+                </Link>
 
                 <p className="font-sans font-light text-[#333333] text-center"
                   style={{ fontSize: '10px', letterSpacing: '0.1em' }}>

@@ -3,10 +3,12 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { ShoppingBag } from 'lucide-react'
+import { ShoppingBag, User } from 'lucide-react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useCartStore } from '@/lib/store'
+import { createClient } from '@/lib/supabase/client'
+import type { User as SupabaseUser } from '@supabase/supabase-js'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -25,9 +27,19 @@ export default function Navbar() {
   const tlRef      = useRef<gsap.core.Timeline | null>(null)
   const isOpenRef  = useRef(false)
   const [isOpen, setIsOpen] = useState(false)
+  const [authUser, setAuthUser] = useState<SupabaseUser | null>(null)
   const cartCount  = useCartStore((s) =>
     s.items.reduce((sum, item) => sum + item.quantity, 0)
   )
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data }) => setAuthUser(data.user))
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setAuthUser(session?.user ?? null)
+    })
+    return () => subscription.unsubscribe()
+  }, [])
 
   /* ── Scroll → pill border brightens ── */
   useEffect(() => {
@@ -178,6 +190,22 @@ export default function Navbar() {
               <span className="absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full bg-[#4DFFB4]" aria-hidden="true" />
             )}
           </button>
+
+          {/* User / Account */}
+          <Link
+            href={authUser ? '/account' : '/auth/login'}
+            aria-label={authUser ? 'My account' : 'Sign in'}
+            data-cursor="pointer"
+            className="relative p-1 -m-1 transition-colors duration-200"
+            style={{ color: authUser ? '#4DFFB4' : '#666666' }}
+            onMouseEnter={(e) => { if (!authUser) e.currentTarget.style.color = '#E8E8E8' }}
+            onMouseLeave={(e) => { if (!authUser) e.currentTarget.style.color = '#666666' }}
+          >
+            <User size={18} strokeWidth={1.5} />
+            {authUser && (
+              <span className="absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full bg-[#4DFFB4]" aria-hidden="true" />
+            )}
+          </Link>
 
           {/* Burger — mobile only */}
           <button

@@ -9,10 +9,13 @@ import type { ProductData } from '@/lib/products'
 interface Props {
   product:      ProductData
   initialColor: 'black' | 'white'
+  stockByColor: { black: number | null; white: number | null }
 }
 
-export default function ProductPageClient({ product, initialColor }: Props) {
+export default function ProductPageClient({ product, initialColor, stockByColor }: Props) {
   const [color, setColor] = useState<'black' | 'white'>(initialColor)
+
+  const stock = stockByColor[color]
 
   return (
     <main className="relative z-10 bg-[#000000] min-h-screen flex flex-col" aria-label={`Page produit ${product.name}`}>
@@ -50,6 +53,7 @@ export default function ProductPageClient({ product, initialColor }: Props) {
             product={product}
             selectedColor={color}
             onColorChange={setColor}
+            stock={stock}
           />
         </div>
       </div>

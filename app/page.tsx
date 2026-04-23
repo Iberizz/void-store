@@ -31,7 +31,7 @@ export default function Home() {
       {/* Section 5 — Final CTA */}
       <FinalCTA />
 
-      <Footer />
+
     </main>
   )
 }

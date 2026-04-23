@@ -7,31 +7,31 @@
 
 ## Stack
 
-| Outil | Version | Usage |
-|-------|---------|-------|
-| **Next.js** | 15 (Turbopack) | App Router, Server + Client Components |
-| **TypeScript** | strict | Typage partout, zéro `any` |
-| **Tailwind CSS** | v3 | Config custom tokens OBSIDIAN |
-| **GSAP** | 3.15 | SplitText, ScrollTrigger, scrub, counters, scramble |
-| **Lenis** | latest | `import from 'lenis'` — smooth scroll, recreate par route |
-| **Three.js / R3F** | latest | Canvas 3D global fixé `z-0`, modèle `headphone.glb` |
-| **Zustand** | latest | Cart state global |
-| **Lucide Icons** | latest | Icônes uniquement |
-| **Vercel** | free | Déploiement |
+| Outil              | Version        | Usage                                                     |
+| ------------------ | -------------- | --------------------------------------------------------- |
+| **Next.js**        | 15 (Turbopack) | App Router, Server + Client Components                    |
+| **TypeScript**     | strict         | Typage partout, zéro `any`                                |
+| **Tailwind CSS**   | v3             | Config custom tokens OBSIDIAN                             |
+| **GSAP**           | 3.15           | SplitText, ScrollTrigger, scrub, counters, scramble       |
+| **Lenis**          | latest         | `import from 'lenis'` — smooth scroll, recreate par route |
+| **Three.js / R3F** | latest         | Canvas 3D global fixé `z-0`, modèle `headphone.glb`       |
+| **Zustand**        | latest         | Cart state global                                         |
+| **Lucide Icons**   | latest         | Icônes uniquement                                         |
+| **Vercel**         | free           | Déploiement                                               |
 
 ---
 
 ## Design System — Palette OBSIDIAN
 
-| Token | Valeur | Usage |
-|-------|--------|-------|
-| `--void-base` | `#000000` | Fond absolu |
-| `--void-surface` | `#080808` | Surfaces — StatsSection, filter bar |
-| `--void-card` | `#0F0F0F` | Cards, Navbar pill |
-| `--void-border` | `#1C1C1C` | Bordures, dividers, separators |
-| `--void-white` | `#E8E8E8` | Textes importants, CTAs |
-| `--void-green` | `#4DFFB4` | Accent — tags, unités, highlights, links actifs |
-| `--void-muted` | `#666666` | Texte secondaire |
+| Token            | Valeur    | Usage                                           |
+| ---------------- | --------- | ----------------------------------------------- |
+| `--void-base`    | `#000000` | Fond absolu                                     |
+| `--void-surface` | `#080808` | Surfaces — StatsSection, filter bar             |
+| `--void-card`    | `#0F0F0F` | Cards, Navbar pill                              |
+| `--void-border`  | `#1C1C1C` | Bordures, dividers, separators                  |
+| `--void-white`   | `#E8E8E8` | Textes importants, CTAs                         |
+| `--void-green`   | `#4DFFB4` | Accent — tags, unités, highlights, links actifs |
+| `--void-muted`   | `#666666` | Texte secondaire                                |
 
 **Typo** : `font-display` = Clash Display (Fontshare) · `font-sans` = Geist/Inter  
 **Weights autorisés** : 300 / 400 / 500 — 600+ interdit sauf hero  
@@ -73,10 +73,10 @@ void-store/
 │   ├── collection/
 │   │   ├── page.tsx               # Server wrapper
 │   │   └── CollectionClient.tsx   # Filtres + grille 3 cols (6 produits)
-│   ├── product/[slug]/page.tsx    # ⬜ À builder
-│   ├── cart/page.tsx              # ⬜ À builder
-│   ├── about/page.tsx             # ⬜ À builder
-│   └── contact/page.tsx           # ⬜ À builder
+│   ├── product/[slug]/page.tsx    # ✅
+│   ├── cart/page.tsx              # ✅
+│   ├── about/page.tsx             # ✅
+│   └── contact/page.tsx           # ✅
 │
 ├── components/
 │   ├── layout/
@@ -97,7 +97,7 @@ void-store/
 │   ├── product/
 │   │   └── ProductCard.tsx        # useInView clip-path reveal + GSAP tilt optionnel (tilt prop)
 │   ├── cart/
-│   │   └── CartDrawer.tsx         # ⬜ À builder — slide-in spring Framer Motion
+│   │   └── CartDrawer.tsx         # ✅
 │   └── shared/
 │       ├── LenisProvider.tsx      # Recreate par pathname — scrollRestoration manual
 │       ├── CustomCursor.tsx       # Curseur magnétique, data-cursor="pointer"
@@ -142,40 +142,11 @@ void-store/
 ✅ MagneticButton — composant réutilisable
 ✅ WordReveal — composant réutilisable
 ✅ ProductCard — clip-path reveal, tilt 3D optionnel
-⬜ /product/[slug] — galerie clip-path, info produit, add to cart
-⬜ /cart — CartDrawer slide-in + résumé commande + Stripe test
-⬜ /about — page éditoriale brand story
-⬜ /contact — formulaire minimal + Resend
+✅ /product/[slug] — galerie clip-path, info produit, add to cart
+✅ /cart — CartDrawer slide-in + résumé commande + Stripe test
+✅ /about — page éditoriale brand story
+✅ /contact — formulaire minimal + Resend
 ```
-
----
-
-## Pages restantes — ce qui est attendu
-
-### `/product/[slug]`
-- Galerie images : clip-path reveal diagonal, navigation dots
-- Info produit : SplitText titre, prix, variantes couleur (noir/blanc)
-- Accordion specs : 40mm / Beryllium / ANC / 48h / Poids
-- Add to cart → Zustand store → CartDrawer slide-in
-- Section "You may also like" — 3 ProductCards
-- Back → `/collection`
-
-### `/cart`
-- CartDrawer : slide-in depuis la droite, spring Framer Motion
-- Liste items : image + nom + prix + qty +/- + remove
-- Subtotal + shipping + CTA "Checkout" → Stripe test mode
-- Empty state : "Your void is empty." + lien collection
-
-### `/about`
-- Brand story éditoriale — layout magazine
-- Timeline : fondation → premier prototype → AW25
-- Équipe (fictive) : 3 photos noir/blanc
-- Valeurs : Silence / Craft / Zero compromise
-
-### `/contact`
-- Formulaire : nom + email + message — style VØID (border-bottom only)
-- Validation + envoi Resend
-- Map ou localisation fictive (Paris, FR)
 
 ---
 
@@ -232,4 +203,4 @@ STRIPE_SECRET_KEY=
 
 ---
 
-*Portfolio project · not a real store · VØID Studio 2026*
+_Portfolio project · not a real store · VØID Studio 2026_
