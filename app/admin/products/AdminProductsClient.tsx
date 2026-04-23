@@ -2,18 +2,23 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { Pencil } from 'lucide-react'
-import ProductEditModal from '@/components/admin/ProductEditModal'
-import AdminSearchBar   from '@/components/admin/AdminSearchBar'
+import { Pencil, Plus, Palette } from 'lucide-react'
+import ProductEditModal    from '@/components/admin/ProductEditModal'
+import ProductCreateModal  from '@/components/admin/ProductCreateModal'
+import ProductColorsModal  from '@/components/admin/ProductColorsModal'
+import AdminSearchBar      from '@/components/admin/AdminSearchBar'
 
 type Product = {
   id: string; name: string; price: number; category: string
   stock: number; description: string; image_black: string; image_white: string
+  slug: string
 }
 
 export default function AdminProductsClient({ products }: { products: Product[] }) {
-  const [editing, setEditing] = useState<Product | null>(null)
-  const [query,   setQuery]   = useState('')
+  const [editing,        setEditing]        = useState<Product | null>(null)
+  const [creating,       setCreating]       = useState(false)
+  const [colorProduct,   setColorProduct]   = useState<Product | null>(null)
+  const [query,          setQuery]          = useState('')
 
   const filtered     = query.trim()
     ? products.filter(p =>
@@ -31,9 +36,19 @@ export default function AdminProductsClient({ products }: { products: Product[] 
           <p className="font-sans text-void-muted text-xs tracking-[0.2em] uppercase mb-2">Admin</p>
           <div className="flex items-end justify-between">
             <h1 className="font-display text-4xl md:text-5xl text-void-white tracking-[-0.03em]">Products.</h1>
-            <div className="text-right">
-              <p className="font-sans text-void-muted text-xs mb-0.5">Catalog</p>
-              <p className="font-display text-2xl text-void-green">{products.length} items</p>
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <p className="font-sans text-void-muted text-xs mb-0.5">Catalog</p>
+                <p className="font-display text-2xl text-void-green">{products.length} items</p>
+              </div>
+              <button
+                onClick={() => setCreating(true)}
+                aria-label="Add new product"
+                className="flex items-center gap-2 px-4 py-2.5 bg-void-green text-void-base font-sans text-xs tracking-[0.15em] uppercase hover:bg-void-white transition-colors duration-200"
+              >
+                <Plus size={13} strokeWidth={2} />
+                Add
+              </button>
             </div>
           </div>
         </div>
@@ -87,10 +102,16 @@ export default function AdminProductsClient({ products }: { products: Product[] 
                   <span className="font-sans text-void-muted text-xs w-8 text-right">{stockPct.toFixed(0)}%</span>
                 </div>
 
-                <button onClick={() => setEditing(product)} aria-label={`Edit ${product.name}`}
-                  className="p-2 text-void-muted hover:text-void-green transition-colors duration-200">
-                  <Pencil size={14} strokeWidth={1.5} />
-                </button>
+                <div className="flex items-center gap-1">
+                  <button onClick={() => setColorProduct(product)} aria-label={`Manage colors — ${product.name}`}
+                    className="p-2 text-void-muted hover:text-void-green transition-colors duration-200">
+                    <Palette size={14} strokeWidth={1.5} />
+                  </button>
+                  <button onClick={() => setEditing(product)} aria-label={`Edit ${product.name}`}
+                    className="p-2 text-void-muted hover:text-void-green transition-colors duration-200">
+                    <Pencil size={14} strokeWidth={1.5} />
+                  </button>
+                </div>
               </div>
             )
           })}
@@ -106,7 +127,9 @@ export default function AdminProductsClient({ products }: { products: Product[] 
         </div>
       </div>
 
-      <ProductEditModal product={editing} onClose={() => setEditing(null)} />
+      <ProductEditModal    product={editing}       onClose={() => setEditing(null)} />
+      <ProductCreateModal  open={creating}         onClose={() => setCreating(false)} />
+      <ProductColorsModal  product={colorProduct}  onClose={() => setColorProduct(null)} />
     </>
   )
 }

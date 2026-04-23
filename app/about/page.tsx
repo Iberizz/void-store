@@ -32,7 +32,6 @@ const TICKER = ['SILENCE', 'CRAFT', 'ZERO COMPROMISE', '3 PRODUCTS', '72H SOLD O
 export default function AboutPage() {
   const heroRef     = useRef<HTMLHeadingElement>(null)
   const subtitleRef = useRef<HTMLParagraphElement>(null)
-  const tickerRef   = useRef<HTMLDivElement>(null)
   const counterRefs = useRef<(HTMLSpanElement | null)[]>([])
 
   useEffect(() => {
@@ -44,13 +43,6 @@ export default function AboutPage() {
       /* ── Subtitle clip-path reveal ── */
       gsap.set(subtitleRef.current, { clipPath: 'inset(0 100% 0 0)' })
       gsap.to(subtitleRef.current,  { clipPath: 'inset(0 0% 0 0)', duration: 1, ease: 'expo.out', delay: 0.9 })
-
-      /* ── Ticker infinite scroll ── */
-      const ticker = tickerRef.current
-      if (ticker) {
-        const totalW = ticker.scrollWidth / 2
-        gsap.to(ticker, { x: -totalW, duration: 28, ease: 'none', repeat: -1 })
-      }
 
       /* ── Stat counters ── */
       STATS.forEach((stat, i) => {
@@ -117,7 +109,14 @@ export default function AboutPage() {
 
       {/* ─────── TICKER ─────── */}
       <div className="py-5 border-b border-[#1C1C1C] overflow-hidden bg-[#040404]" aria-hidden="true">
-        <div ref={tickerRef} className="flex whitespace-nowrap" style={{ width: 'max-content' }}>
+        <div
+          className="flex whitespace-nowrap"
+          style={{
+            width: 'max-content',
+            '--marquee-offset': '-50%',
+            animation: 'scroll-left 28s linear infinite',
+          } as React.CSSProperties}
+        >
           {[...TICKER, ...TICKER].map((item, i) => (
             <span key={i} className="font-mono text-[#4DFFB4] uppercase inline-flex items-center gap-8 px-8"
               style={{ fontSize: '10px', letterSpacing: '0.3em' }}>

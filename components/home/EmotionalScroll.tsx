@@ -154,34 +154,60 @@ export default function EmotionalScroll() {
           </div>
         ))}
 
-        {/* ── Text panels — left ── */}
+        {/* ── Headphone — mobile: moitié haute · desktop: droite ── */}
         <div
-          className="absolute"
-          style={{ left: '8%', top: '50%', transform: 'translateY(-50%)', width: '35%', zIndex: 4 }}
+          className="absolute
+            top-0 left-0 right-0 h-1/2 flex items-center justify-center
+            sm:h-auto sm:top-1/2 sm:-translate-y-1/2 sm:left-auto sm:right-[-5%]"
+          style={{ zIndex: 2 }}
+          aria-hidden="true"
+        >
+          <div
+            ref={headphoneRef}
+            className="relative w-[72vw] h-[72vw] sm:w-[min(65vw,800px)] sm:h-[min(65vw,800px)]"
+          >
+            <Image
+              src="/images/void-pro-transparent.png"
+              alt="VØID Pro headphone"
+              fill
+              className="object-contain"
+              sizes="(max-width: 640px) 72vw, 800px"
+              priority
+            />
+          </div>
+        </div>
+
+        {/* ── Text panels — mobile: moitié basse · desktop: gauche ── */}
+        <div
+          className="absolute
+            bottom-0 left-0 right-0 h-1/2
+            border-t border-[#1C1C1C] sm:border-t-0
+            sm:h-auto sm:bottom-auto sm:left-[8%] sm:right-auto sm:top-1/2 sm:-translate-y-1/2 sm:w-[35%]"
+          style={{ zIndex: 4 }}
         >
           {PANELS.map((panel, i) => (
             <div
               key={panel.word}
               ref={el => { panelRefs.current[i] = el }}
-              className="absolute inset-0 flex flex-col justify-center"
+              className="absolute inset-0 flex flex-col justify-center px-6 sm:px-0"
               style={{ opacity: 0 }}
             >
               <span
-                className="font-display font-light text-[#E8E8E8] leading-none mb-6 block"
-                style={{ fontSize: 'clamp(3.5rem, 6vw, 7rem)', letterSpacing: '-0.04em' }}
+                className="font-display font-light text-[#E8E8E8] leading-none mb-3 block"
+                style={{ fontSize: 'clamp(2.6rem, 9vw, 7rem)', letterSpacing: '-0.04em' }}
               >
                 {panel.word}
               </span>
               <p
                 className="font-sans font-light text-[#666666] leading-relaxed"
-                style={{ fontSize: 'clamp(0.875rem, 1.1vw, 1.05rem)', maxWidth: '360px' }}
+                style={{ fontSize: 'clamp(0.8rem, 3.2vw, 1.05rem)', maxWidth: '360px' }}
               >
                 {panel.phrase}
               </p>
               {panel.cta && (
                 <Link
                   href="/collection"
-                  className="self-start mt-10 font-sans font-light text-sm text-[#E8E8E8] border border-[#E8E8E8] px-8 py-3.5 transition-colors duration-300 hover:bg-[#E8E8E8] hover:text-[#000000]"
+                  className="self-start mt-6 sm:mt-10 font-sans font-light text-sm text-[#E8E8E8] border border-[#E8E8E8] px-8 py-3.5 transition-colors duration-300 hover:bg-[#E8E8E8] hover:text-[#000000]"
                   data-cursor="pointer"
                   aria-label="Découvrir la collection VØID"
                 >
@@ -192,58 +218,34 @@ export default function EmotionalScroll() {
           ))}
         </div>
 
-        {/* ── Headphone — right ── */}
+        {/* ── Progress bar — unique, repositionnée par breakpoint ── */}
         <div
-          ref={headphoneRef}
-          className="absolute"
+          className="absolute flex flex-col gap-[6px] sm:gap-2"
           style={{
-            right:     '-5%',
-            top:       '50%',
+            right: 'clamp(12px, 4vw, 48px)',
+            top:   '50%',
             transform: 'translateY(-50%)',
-            width:     'min(65vw, 800px)',
-            height:    'min(65vw, 800px)',
-            zIndex:    2,
+            zIndex: 5,
           }}
-          aria-hidden="true"
-        >
-          <Image
-            src="/images/void-pro-transparent.png"
-            alt="VØID Pro headphone"
-            fill
-            className="object-contain"
-            sizes="(max-width: 768px) 65vw, 800px"
-            priority
-          />
-        </div>
-
-        {/* ── Progress bar — right edge ── */}
-        <div
-          className="absolute flex flex-col gap-2"
-          style={{ right: '48px', top: '50%', transform: 'translateY(-50%)', zIndex: 4 }}
           aria-hidden="true"
         >
           {PANELS.map((_, i) => (
             <div
               key={i}
-              style={{ width: '1px', height: '40px', background: '#1C1C1C', position: 'relative', overflow: 'hidden' }}
+              className="w-px h-7 sm:h-10"
+              style={{ background: '#1C1C1C', position: 'relative', overflow: 'hidden' }}
             >
               <div
                 ref={el => { progFillRefs.current[i] = el }}
-                style={{
-                  position:        'absolute',
-                  inset:           0,
-                  background:      '#4DFFB4',
-                  transform:       'scaleY(0)',
-                  transformOrigin: 'top',
-                }}
+                style={{ position: 'absolute', inset: 0, background: '#4DFFB4', transform: 'scaleY(0)', transformOrigin: 'top' }}
               />
             </div>
           ))}
         </div>
 
-        {/* ── Specs — bottom left ── */}
+        {/* ── Specs — masquées mobile (redondant avec les panels) · desktop: bas gauche ── */}
         <div
-          className="absolute"
+          className="hidden sm:block absolute"
           style={{ left: '48px', bottom: '48px', zIndex: 4 }}
           aria-label="Spécifications clés"
         >

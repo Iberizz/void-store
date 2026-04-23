@@ -42,23 +42,43 @@ export default function CollectionHero() {
       </h2>
 
       {/* ── Casque centré ── */}
-      <div ref={imgRef} className="absolute" style={{ top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: 940, height: 940, zIndex: 2 }}>
+      <div ref={imgRef} className="absolute" style={{ top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: 'clamp(520px, 92vw, 940px)', height: 'clamp(520px, 92vw, 940px)', zIndex: 2 }}>
         <Image src="/images/void-pro-transparent.png" alt="VØID Pro" fill style={{ objectFit: 'contain' }} priority />
       </div>
 
-      {/* ── Specs flottantes ── */}
-      <div ref={specsRef} style={{ zIndex: 4 }}>
-        {/* Gauche */}
+      {/* ── Specs flottantes — desktop : gauche/droite · mobile : bas ── */}
+
+      {/* Desktop uniquement */}
+      <div ref={specsRef} className="hidden sm:block" style={{ zIndex: 4 }}>
         <div className="absolute" style={{ left: 48, top: '50%', transform: 'translateY(-50%)' }}>
           <p className="font-sans font-light uppercase text-[#666666]" style={{ fontSize: '9px', letterSpacing: '0.2em' }}>Audio technology</p>
           <p className="font-sans font-light uppercase text-[#4DFFB4] mt-1 mb-4" style={{ fontSize: '11px', letterSpacing: '0.15em' }}>Beryllium</p>
           <p className="font-sans font-light uppercase text-[#666666]" style={{ fontSize: '9px', letterSpacing: '0.2em' }}>Noise control</p>
           <p className="font-sans font-light uppercase text-[#4DFFB4] mt-1" style={{ fontSize: '11px', letterSpacing: '0.15em' }}>ANC −42dB</p>
         </div>
-        {/* Droite */}
         <div className="absolute text-right" style={{ right: 48, top: '50%', transform: 'translateY(-50%)' }}>
           <p className="font-sans font-light uppercase text-[#666666]" style={{ fontSize: '9px', letterSpacing: '0.2em' }}>Battery life</p>
           <p className="font-sans font-light uppercase text-[#4DFFB4] mt-1 mb-4" style={{ fontSize: '11px', letterSpacing: '0.15em' }}>48 hours</p>
+          <p className="font-sans font-light uppercase text-[#666666]" style={{ fontSize: '9px', letterSpacing: '0.2em' }}>Drivers</p>
+          <p className="font-sans font-light uppercase text-[#4DFFB4] mt-1" style={{ fontSize: '11px', letterSpacing: '0.15em' }}>40mm Dual</p>
+        </div>
+      </div>
+
+      {/* Mobile uniquement — 4 specs en grille 2×2 en bas */}
+      <div className="sm:hidden absolute bottom-8 left-0 right-0 grid grid-cols-2 px-8 gap-y-4" style={{ zIndex: 4 }}>
+        <div>
+          <p className="font-sans font-light uppercase text-[#666666]" style={{ fontSize: '9px', letterSpacing: '0.2em' }}>Audio technology</p>
+          <p className="font-sans font-light uppercase text-[#4DFFB4] mt-1" style={{ fontSize: '11px', letterSpacing: '0.15em' }}>Beryllium</p>
+        </div>
+        <div className="text-right">
+          <p className="font-sans font-light uppercase text-[#666666]" style={{ fontSize: '9px', letterSpacing: '0.2em' }}>Battery life</p>
+          <p className="font-sans font-light uppercase text-[#4DFFB4] mt-1" style={{ fontSize: '11px', letterSpacing: '0.15em' }}>48 hours</p>
+        </div>
+        <div>
+          <p className="font-sans font-light uppercase text-[#666666]" style={{ fontSize: '9px', letterSpacing: '0.2em' }}>Noise control</p>
+          <p className="font-sans font-light uppercase text-[#4DFFB4] mt-1" style={{ fontSize: '11px', letterSpacing: '0.15em' }}>ANC −42dB</p>
+        </div>
+        <div className="text-right">
           <p className="font-sans font-light uppercase text-[#666666]" style={{ fontSize: '9px', letterSpacing: '0.2em' }}>Drivers</p>
           <p className="font-sans font-light uppercase text-[#4DFFB4] mt-1" style={{ fontSize: '11px', letterSpacing: '0.15em' }}>40mm Dual</p>
         </div>

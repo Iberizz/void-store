@@ -215,20 +215,28 @@ export default function ProductInfo({ product, selectedColor, onColorChange, sto
           <span>SPECIFICATIONS</span>
           <span style={{ transform: openAccordion ? 'rotate(45deg)' : 'none', transition: 'transform 0.3s ease', fontSize: '18px', lineHeight: 1 }}>+</span>
         </button>
-        {openAccordion && (
-          <div className="pb-6 flex flex-col gap-3">
-            {product.details.map(({ label, value }) => (
-              <div key={label} className="flex justify-between gap-4">
-                <span className="font-sans font-light text-[#444444]" style={{ fontSize: '12px', letterSpacing: '0.1em', minWidth: '100px' }}>
-                  {label}
-                </span>
-                <span className="font-sans font-light text-[#666666] text-right" style={{ fontSize: '12px' }}>
-                  {value}
-                </span>
-              </div>
-            ))}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateRows: openAccordion ? '1fr' : '0fr',
+            transition: 'grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
+          }}
+        >
+          <div style={{ overflow: 'hidden' }}>
+            <div className="pb-6 flex flex-col gap-3">
+              {product.details.map(({ label, value }) => (
+                <div key={label} className="flex justify-between gap-4">
+                  <span className="font-sans font-light text-[#444444]" style={{ fontSize: '12px', letterSpacing: '0.1em', minWidth: '100px' }}>
+                    {label}
+                  </span>
+                  <span className="font-sans font-light text-[#666666] text-right" style={{ fontSize: '12px' }}>
+                    {value}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
-        )}
+        </div>
       </div>
 
     </div>

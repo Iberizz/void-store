@@ -51,7 +51,7 @@ export default function FinalCTA() {
   }, [])
 
   const titleStyle: React.CSSProperties = {
-    fontSize:      'clamp(5rem, 9vw, 11rem)',
+    fontSize:      'clamp(3rem, 9vw, 11rem)',
     fontWeight:    300,
     color:         '#E8E8E8',
     letterSpacing: '-0.04em',
@@ -70,11 +70,11 @@ export default function FinalCTA() {
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true"
         style={{ background: 'linear-gradient(to right, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 50%)' }} />
 
-      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 64px', width: '100%' }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto', paddingLeft: 'clamp(24px, 5vw, 64px)', paddingRight: 'clamp(24px, 5vw, 64px)', width: '100%' }}>
         <div className="grid items-center" style={{ gridTemplateColumns: '60fr 1px 40fr', gap: 0 }}>
 
           {/* ── Col gauche ── */}
-          <div style={{ paddingRight: '80px' }}>
+          <div style={{ paddingRight: 'clamp(0px, 5vw, 80px)' }}>
             <p className="font-sans font-light text-[#4DFFB4] uppercase mb-6"
               style={{ fontSize: '10px', letterSpacing: '0.3em' }}>
               THE COLLECTION
@@ -90,6 +90,15 @@ export default function FinalCTA() {
               style={{ fontSize: '16px', maxWidth: '400px', fontWeight: 300 }}>
               Experience sound the way it was meant to be heard.
             </p>
+            {/* CTA mobile uniquement */}
+            <div className="md:hidden mt-10" style={{ width: 'fit-content' }}>
+              <MagneticButton
+                href="/collection"
+                label="Shop the collection →"
+                className="font-sans text-[#000000] bg-[#4DFFB4] hover:bg-[#E8E8E8] transition-colors duration-300"
+                style={{ fontSize: '11px', letterSpacing: '0.2em', fontWeight: 500, padding: '16px 32px', textTransform: 'uppercase' }}
+              />
+            </div>
           </div>
 
           {/* ── Séparateur vertical ── */}

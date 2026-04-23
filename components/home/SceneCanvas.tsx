@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useEffect } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 
@@ -118,9 +118,20 @@ function SoundWaves() {
 
 /* ─── Scene ──────────────────────────────────────────────────── */
 
+function CameraSetup() {
+  const { camera, size } = useThree()
+  useEffect(() => {
+    const cam = camera as THREE.PerspectiveCamera
+    cam.position.z = size.width < 640 ? 3.8 : 2.2
+    cam.updateProjectionMatrix()
+  }, [camera, size.width])
+  return null
+}
+
 function Scene() {
   return (
     <>
+      <CameraSetup />
       <ambientLight intensity={0.3} />
       <pointLight position={[5, 3, 5]}  intensity={3}   color="#E8E8E8" />
       <pointLight position={[-3, 0, 3]} intensity={0.6} color="#4DFFB4" />

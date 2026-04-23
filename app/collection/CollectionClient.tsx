@@ -20,14 +20,10 @@ export default function CollectionClient() {
 
   const filtered = active === 'All' ? PRODUCTS : PRODUCTS.filter(p => p.category === active)
 
-  // Group in rows of 3 — last row may have fewer items
-  const rows: Array<typeof filtered> = []
-  for (let i = 0; i < filtered.length; i += 3) rows.push(filtered.slice(i, i + 3))
-
   return (
     <>
       {/* ── Filter bar — sticky ── */}
-      <div className="sticky top-0 z-40 flex items-center gap-8 px-8 md:px-16 py-4 bg-[#080808] border-b border-[#1C1C1C]">
+      <div className="sticky top-0 z-40 flex items-center gap-4 md:gap-8 px-4 md:px-16 py-4 bg-[#080808] border-b border-[#1C1C1C]">
         {FILTERS.map((f) => (
           <button
             key={f}
@@ -42,30 +38,23 @@ export default function CollectionClient() {
         ))}
       </div>
 
-      <div className="mx-24 items-center">
-      {/* ── Grid — 3 colonnes fixes, chaque card = 1/3 ── */}
-      {rows.map((row, rowIdx) => (
-        <div
-          key={rowIdx}
-          className="grid gap-2 my-2 bg-[#000000]"
-          style={{ gridTemplateColumns: 'repeat(3, 1fr)', height: '60vh' }}
-        >
-          {row.map((product, colIdx) => {
+      {/* ── Grid — 1 col mobile · 2 cols tablet · 3 cols desktop ── */}
+      <div className="px-2 md:px-4 lg:px-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 my-2">
+          {filtered.map((product, idx) => {
             const { id, ...cardProps } = product
             return (
-              <div key={id} className="relative overflow-hidden">
+              <div key={id} className="relative overflow-hidden h-[55vh] sm:h-[50vh] lg:h-[60vh]">
                 <ProductCard
                   {...cardProps}
                   size="large"
-                  delay={(rowIdx * 3 + colIdx) * 0.1}
+                  delay={idx * 0.1}
                   tilt={false}
                 />
               </div>
             )
           })}
-
         </div>
-      ))}
       </div>
     </>
   )

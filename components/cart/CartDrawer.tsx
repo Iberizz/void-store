@@ -113,19 +113,31 @@ export default function CartDrawer() {
               <ul className="flex-1 overflow-y-auto px-8 py-6 flex flex-col gap-6" role="list">
                 {items.map((item) => (
                   <li key={item.id} className="flex gap-4 pb-6 border-b border-[#1C1C1C] last:border-0">
-                    {/* Image */}
-                    <div className="relative shrink-0 bg-[#0F0F0F] border border-[#1C1C1C]"
-                      style={{ width: '80px', height: '80px' }}>
+                    {/* Image — cliquable */}
+                    <Link
+                      href={`/product/${item.slug}`}
+                      onClick={closeCart}
+                      data-cursor="pointer"
+                      className="relative shrink-0 bg-[#0F0F0F] border border-[#1C1C1C] hover:border-[#4DFFB4] transition-colors duration-200"
+                      style={{ width: '80px', height: '80px' }}
+                      aria-label={`Voir ${item.name}`}
+                    >
                       <Image src={item.image} alt={item.name} fill className="object-contain p-2" sizes="80px" />
-                    </div>
+                    </Link>
 
                     {/* Info */}
                     <div className="flex-1 flex flex-col justify-between">
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <p className="font-sans font-light text-[#E8E8E8]" style={{ fontSize: '13px' }}>
+                          <Link
+                            href={`/product/${item.slug}`}
+                            onClick={closeCart}
+                            data-cursor="pointer"
+                            className="font-sans font-light text-[#E8E8E8] hover:text-[#4DFFB4] transition-colors duration-200"
+                            style={{ fontSize: '13px' }}
+                          >
                             {item.name}
-                          </p>
+                          </Link>
                           <p className="font-sans font-light text-[#4DFFB4] mt-1"
                             style={{ fontSize: '13px', letterSpacing: '0.05em' }}>
                             €{item.price.toLocaleString('fr-FR')}
