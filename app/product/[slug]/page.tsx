@@ -51,9 +51,9 @@ export default async function ProductPage({ params, searchParams }: Props) {
 
     if (!blackRow) notFound()
 
-    // White image: try image_vitrine → image_black → image_white (depending on how it was inserted)
+    // White image: image_white → image_black (image_vitrine is collection-only)
     const whiteImage = whiteRow
-      ? ((whiteRow.image_vitrine as string) || (whiteRow.image_black as string) || (whiteRow.image_white as string) || '')
+      ? ((whiteRow.image_white as string) || (whiteRow.image_black as string) || '')
       : ''
 
     product = {

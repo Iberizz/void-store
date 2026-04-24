@@ -79,7 +79,7 @@ export default function AdminProductsClient({ products }: { products: Product[] 
           ) : filtered.map(product => {
             const stockPct   = (product.stock / maxStock) * 100
             const stockAlert = product.stock < 15
-            const thumbnail  = product.image_vitrine || product.image_black
+            const thumbnail  = product.image_black || product.image_vitrine
             const isPendingDelete = confirmDel === product.id
 
             return (
