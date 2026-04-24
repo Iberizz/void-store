@@ -4,6 +4,8 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 
+export type ProductDetail = { label: string; value: string }
+
 export type ProductUpdate = {
   id:             string
   name:           string
@@ -13,6 +15,8 @@ export type ProductUpdate = {
   image_vitrine:  string
   image_black:    string
   image_white:    string
+  specs:          string[]
+  details:        ProductDetail[]
 }
 
 export type ProductCreate = {
@@ -22,12 +26,12 @@ export type ProductCreate = {
   stock:                number
   category:             string
   description:          string
-  // Each variant has its own product image + vitrine (collection) image
-  // Scalable: add image_xxx / image_vitrine_xxx for each new color
-  image_black:          string   // product image — required
-  image_vitrine_black:  string   // collection image for black (fallback: image_black)
-  image_white:          string   // product image white — optional
-  image_vitrine_white:  string   // collection image for white (fallback: image_white)
+  image_black:          string
+  image_vitrine_black:  string
+  image_white:          string
+  image_vitrine_white:  string
+  specs:                string[]
+  details:              ProductDetail[]
 }
 
 async function assertAdmin() {
@@ -50,6 +54,8 @@ export async function updateProduct(payload: ProductUpdate) {
       image_vitrine: payload.image_vitrine,
       image_black:   payload.image_black,
       image_white:   payload.image_white,
+      specs:         payload.specs,
+      details:       payload.details,
     })
     .eq('id', payload.id)
 
@@ -73,7 +79,7 @@ export async function createProduct(payload: ProductCreate) {
     description: payload.description,
   }
 
-  // ── Black variant (always) ──
+  // ── Black variant (always) — specs/details stored here only ──
   const { error: errBlack } = await admin.from('products').insert({
     ...base,
     id:            payload.slug,
@@ -81,6 +87,8 @@ export async function createProduct(payload: ProductCreate) {
     image_vitrine: payload.image_vitrine_black || payload.image_black,
     image_black:   payload.image_black,
     image_white:   '',
+    specs:         payload.specs,
+    details:       payload.details,
   })
   if (errBlack) return { error: errBlack.message }
 

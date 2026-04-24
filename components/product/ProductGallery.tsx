@@ -34,7 +34,7 @@ export default function ProductGallery({ images, name, category }: Props) {
   }
 
   return (
-    <div className="relative h-full flex flex-col bg-[#080808]">
+    <div className="relative h-[60vh] md:h-full flex flex-col bg-[#080808]">
 
       {/* Category badge */}
       <div className="absolute top-6 left-6 z-10">
@@ -55,14 +55,14 @@ export default function ProductGallery({ images, name, category }: Props) {
 
       {/* Main image */}
       <div className="relative flex-1 overflow-hidden">
-        <div ref={imgRef} className="absolute inset-0 p-12">
+        <div ref={imgRef} className="absolute inset-0 p-6 md:p-12">
           <div className="relative w-full h-full">
             <Image
               src={images[active]}
               alt={`${name} — vue ${active + 1}`}
               fill
               className="object-contain"
-              sizes="50vw"
+              sizes="(max-width: 768px) 100vw, 50vw"
               priority={active === 0}
             />
           </div>

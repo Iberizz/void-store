@@ -39,18 +39,7 @@ export default async function AdminMessagesPage() {
           <p className="font-display text-2xl text-void-muted">No messages yet.</p>
         </div>
       ) : (
-        <>
-          <MessagesClient messages={all} />
-
-          <div className="mt-6 pt-4 border-t border-void-border flex justify-between">
-            <p className="font-sans text-void-muted text-xs">
-              {all.length} message{all.length !== 1 ? 's' : ''}
-            </p>
-            <p className="font-sans text-void-muted text-xs">
-              {all.filter(m => m.status === 'processed').length} processed
-            </p>
-          </div>
-        </>
+        <MessagesClient messages={all} />
       )}
     </div>
   )

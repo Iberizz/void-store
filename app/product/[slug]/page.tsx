@@ -43,7 +43,7 @@ export default async function ProductPage({ params, searchParams }: Props) {
     // Fetch black row + white row images from admin client
     const { data: rows } = await admin
       .from('products')
-      .select('id, slug, name, price, category, description, image_black, image_white, image_vitrine')
+      .select('id, slug, name, price, category, description, image_black, image_white, image_vitrine, specs, details')
       .in('id', [slug, `${slug}-white`])
 
     const blackRow = rows?.find(r => r.id === slug)
@@ -65,13 +65,13 @@ export default async function ProductPage({ params, searchParams }: Props) {
       price:       blackRow.price    as number,
       priceLabel:  `€${(blackRow.price as number).toLocaleString('fr-FR')}`,
       description: (blackRow.description as string) || '',
-      specs:       [],
+      specs:   (blackRow.specs   as string[])                             ?? [],
       // white array is populated if: stock query confirms it exists OR admin row found
       images: {
         black: [(blackRow.image_black as string) || ''],
         white: (whiteExists || whiteRow) && whiteImage ? [whiteImage] : [],
       },
-      details: [],
+      details: (blackRow.details as { label: string; value: string }[]) ?? [],
     }
   }
 

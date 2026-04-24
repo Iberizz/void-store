@@ -13,6 +13,8 @@ type Product = {
   id: string; name: string; price: number; category: string
   stock: number; description: string; image_vitrine: string
   image_black: string; image_white: string; slug: string
+  specs:    string[]
+  details:  { label: string; value: string }[]
 }
 
 export default function AdminProductsClient({ products }: { products: Product[] }) {
