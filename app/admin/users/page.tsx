@@ -1,9 +1,9 @@
 export const dynamic  = 'force-dynamic'
 export const metadata = { title: 'Users — VØID Admin' }
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient }      from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import AdminUsersClient from './AdminUsersClient'
+import AdminUsersClient      from './AdminUsersClient'
 
 export default async function AdminUsersPage() {
   const supabase = await createClient()
@@ -14,23 +14,31 @@ export default async function AdminUsersPage() {
 
   const [{ data: { users } }, { data: orders }] = await Promise.all([
     admin.auth.admin.listUsers({ perPage: 1000 }),
-    admin.from('orders').select('user_id, total, status, created_at'),
+    admin.from('orders').select('id, user_id, total, status, created_at, items'),
   ])
 
-  const statsMap = new Map<string, { count: number; spent: number }>()
+  const ordersMap = new Map<string, { id: string; total: number; status: string; created_at: string; items: unknown[] }[]>()
   for (const order of orders ?? []) {
-    const s = statsMap.get(order.user_id) ?? { count: 0, spent: 0 }
-    s.count++
-    if (order.status !== 'Cancelled') s.spent += order.total
-    statsMap.set(order.user_id, s)
+    const list = ordersMap.get(order.user_id) ?? []
+    list.push({ id: order.id, total: order.total, status: order.status, created_at: order.created_at, items: order.items ?? [] })
+    ordersMap.set(order.user_id, list)
   }
 
   const enriched = users.map(u => {
-    const stats    = statsMap.get(u.id) ?? { count: 0, spent: 0 }
-    const name     = (u.user_metadata?.full_name as string) || u.email?.split('@')[0] || '—'
-    const initials = name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
-    const joined   = new Date(u.created_at).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })
-    return { id: u.id, name, initials, email: u.email ?? '—', joined, isActive: stats.count > 0, ...stats }
+    const userOrders = ordersMap.get(u.id) ?? []
+    const count      = userOrders.length
+    const spent      = userOrders.filter(o => o.status !== 'Cancelled').reduce((s, o) => s + o.total, 0)
+    const name       = (u.user_metadata?.full_name as string) || u.email?.split('@')[0] || '—'
+    const initials   = name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
+    const joined     = new Date(u.created_at).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })
+    const lastOrderAt = userOrders.length > 0
+      ? userOrders.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0].created_at
+      : null
+    return {
+      id: u.id, name, initials, email: u.email ?? '—',
+      joined, isActive: count > 0, count, spent, lastOrderAt,
+      orders: userOrders.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 5),
+    }
   }).sort((a, b) => b.spent - a.spent)
 
   const totalRevenue = enriched.reduce((s, u) => s + u.spent, 0)
