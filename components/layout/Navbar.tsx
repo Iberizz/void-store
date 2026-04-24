@@ -184,12 +184,28 @@ export default function Navbar() {
             aria-label={cartCount > 0 ? `Panier — ${cartCount} article${cartCount > 1 ? 's' : ''}` : 'Ouvrir le panier'}
             onClick={() => useCartStore.getState().openCart()}
             data-cursor="pointer"
+            data-cart-target
           >
             <ShoppingBag size={18} strokeWidth={1.5} />
             {cartCount > 0 && (
               <span className="absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full bg-[#4DFFB4]" aria-hidden="true" />
             )}
           </button>
+
+          {/* BO link — admin only */}
+          {authUser?.user_metadata?.is_admin && (
+            <Link
+              href="/admin"
+              aria-label="Back office"
+              data-cursor="pointer"
+              className="font-sans text-[10px] tracking-[0.2em] uppercase transition-colors duration-200"
+              style={{ color: '#4DFFB4' }}
+              onMouseEnter={e => { e.currentTarget.style.opacity = '0.6' }}
+              onMouseLeave={e => { e.currentTarget.style.opacity = '1' }}
+            >
+              BO
+            </Link>
+          )}
 
           {/* User / Account */}
           <Link

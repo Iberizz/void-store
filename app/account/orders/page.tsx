@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link  from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import CancelItemButton  from '@/components/account/CancelItemButton'
 import CancelOrderButton from '@/components/account/CancelOrderButton'
 
 export const dynamic  = 'force-dynamic'
@@ -13,19 +14,31 @@ const STATUS_STYLES: Record<string, { color: string; bg: string; dot: string }> 
   Cancelled:  { color: '#FF6B6B', bg: 'rgba(255,107,107,0.08)',  dot: '#FF6B6B'  },
 }
 
-type CartItem = { id: string; name: string; price: number; quantity: number; image: string }
+type CartItem = {
+  id: string
+  name: string
+  price: number
+  quantity: number
+  image: string
+  cancelled?: boolean
+  cancel_reason?: string
+}
 
 export default async function OrdersPage() {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
   const { data: orders } = await supabase
     .from('orders')
     .select('*')
+    .eq('user_id', user!.id)
     .order('created_at', { ascending: false })
 
-  const total      = (orders ?? []).filter(o => o.status !== 'Cancelled').reduce((s: number, o) => s + o.total, 0)
-  const totalItems = (orders ?? []).reduce((s: number, o) => {
+  const allOrders  = orders ?? []
+  const total      = allOrders.filter(o => o.status !== 'Cancelled').reduce((s: number, o) => s + o.total, 0)
+  const totalItems = allOrders.reduce((s: number, o) => {
     const items = o.items as CartItem[]
-    return s + items.reduce((q, i) => q + i.quantity, 0)
+    return s + items.filter(i => !i.cancelled).reduce((q, i) => q + i.quantity, 0)
   }, 0)
 
   return (
@@ -35,7 +48,7 @@ export default async function OrdersPage() {
         <h1 className="font-display text-4xl md:text-5xl text-void-white tracking-[-0.03em]">Orders.</h1>
       </div>
 
-      {!orders || orders.length === 0 ? (
+      {!allOrders || allOrders.length === 0 ? (
         <div className="py-24 text-center">
           <p className="font-display text-2xl text-void-muted mb-4">No orders yet.</p>
           <p className="font-sans text-void-muted text-sm mb-8">Your void is empty — for now.</p>
@@ -45,59 +58,24 @@ export default async function OrdersPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {orders.map((order) => {
+          {allOrders.map((order) => {
             const s        = STATUS_STYLES[order.status] ?? STATUS_STYLES['Processing']
             const items    = order.items as CartItem[]
-            const totalQty = items.reduce((q, i) => q + i.quantity, 0)
             const date     = new Date(order.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+            const activeItems    = items.filter(i => !i.cancelled)
+            const cancelledItems = items.filter(i => i.cancelled)
+            const canCancelOrder = order.status === 'Processing' && activeItems.length > 0
 
             return (
               <div key={order.id} className="bg-void-surface border border-void-border hover:border-void-muted/40 transition-colors duration-200">
 
-                {/* Top — images + meta + status */}
-                <div className="flex items-start gap-5 p-6">
-
-                  {/* Thumbnails */}
-                  <div className="flex shrink-0 mt-0.5">
-                    {items.slice(0, 3).map((item, i) => (
-                      <div
-                        key={item.id + i}
-                        className="relative w-16 h-16 bg-void-card border border-void-border overflow-hidden"
-                        style={{ marginLeft: i > 0 ? '-10px' : 0, zIndex: items.length - i }}
-                      >
-                        <Image src={item.image} alt={item.name} fill className="object-contain p-1.5" sizes="64px" />
-                      </div>
-                    ))}
-                    {items.length > 3 && (
-                      <div
-                        className="relative w-16 h-16 bg-void-card border border-void-border flex items-center justify-center"
-                        style={{ marginLeft: '-10px' }}
-                      >
-                        <span className="font-sans text-void-muted text-xs">+{items.length - 3}</span>
-                      </div>
-                    )}
+                {/* Order header */}
+                <div className="flex items-center justify-between px-6 py-4 border-b border-void-border">
+                  <div className="flex items-center gap-4">
+                    <p className="font-mono text-void-muted text-xs">#{order.id.slice(0, 8).toUpperCase()}</p>
+                    <p className="font-sans text-void-muted text-xs">{date}</p>
                   </div>
-
-                  {/* Items list */}
-                  <div className="flex-1 min-w-0">
-                    <div className="mb-2 space-y-1">
-                      {items.map((item) => (
-                        <p key={item.id} className="font-sans text-void-white text-sm leading-snug">
-                          {item.name}
-                          <span className="text-void-muted text-xs ml-2">× {item.quantity}</span>
-                        </p>
-                      ))}
-                    </div>
-                    <p className="font-sans text-void-muted text-xs">
-                      {date} · {totalQty} item{totalQty !== 1 ? 's' : ''}
-                    </p>
-                  </div>
-
-                  {/* Right — total + status */}
-                  <div className="text-right shrink-0">
-                    <p className="font-display text-xl text-void-white mb-3">
-                      €{order.total.toLocaleString()}
-                    </p>
+                  <div className="flex items-center gap-3">
                     <span
                       className="inline-flex items-center gap-1.5 font-sans text-xs px-2.5 py-1"
                       style={{ color: s.color, background: s.bg }}
@@ -105,21 +83,80 @@ export default async function OrdersPage() {
                       <span className="w-1 h-1 rounded-full shrink-0" style={{ background: s.dot }} />
                       {order.status}
                     </span>
+                    <p className="font-display text-void-white text-lg">€{order.total.toLocaleString()}</p>
                   </div>
                 </div>
 
-                {/* Bottom — card + order id + cancel */}
+                {/* Items list */}
+                <div className="divide-y divide-void-border">
+                  {items.map((item) => {
+                    const isCancelled = !!item.cancelled
+                    return (
+                      <div
+                        key={item.id}
+                        className="flex items-center gap-4 px-6 py-4"
+                        style={{ opacity: isCancelled ? 0.5 : 1 }}
+                      >
+                        {/* Thumbnail */}
+                        <div className="relative w-14 h-14 bg-void-card border border-void-border shrink-0 overflow-hidden">
+                          {item.image && (
+                            <Image
+                              src={item.image}
+                              alt={item.name}
+                              fill
+                              className={`object-contain p-1.5 ${isCancelled ? 'grayscale' : ''}`}
+                              sizes="56px"
+                            />
+                          )}
+                        </div>
+
+                        {/* Name + reason */}
+                        <div className="flex-1 min-w-0">
+                          <p className={`font-sans text-sm leading-snug ${isCancelled ? 'line-through text-void-muted' : 'text-void-white'}`}>
+                            {item.name}
+                            <span className="text-void-muted text-xs ml-2 no-underline" style={{ textDecoration: 'none' }}>
+                              × {item.quantity}
+                            </span>
+                          </p>
+                          {isCancelled && item.cancel_reason && (
+                            <p className="font-sans text-[10px] text-[#FF6B6B]/60 mt-0.5 tracking-[0.05em]">
+                              {item.cancel_reason}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Price */}
+                        <p className={`font-sans text-sm shrink-0 ${isCancelled ? 'line-through text-void-muted' : 'text-void-white'}`}>
+                          €{(item.price * item.quantity).toLocaleString()}
+                        </p>
+
+                        {/* Cancel button — only for active items on Processing orders */}
+                        {order.status === 'Processing' && !isCancelled && (
+                          <CancelItemButton
+                            orderId={order.id}
+                            itemId={item.id}
+                            itemName={item.name}
+                          />
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+
+                {/* Order footer */}
                 <div className="px-6 py-3 border-t border-void-border flex items-center justify-between gap-4">
                   <div className="flex items-center gap-6">
                     <p className="font-sans text-void-muted text-xs capitalize">
                       {order.card_brand} •••• {order.card_last4}
                     </p>
-                    <p className="font-mono text-void-muted text-xs hidden sm:block">
-                      #{order.id.slice(0, 8)}
-                    </p>
+                    {cancelledItems.length > 0 && activeItems.length > 0 && (
+                      <p className="font-sans text-[10px] text-[#FF6B6B]/60 tracking-[0.05em]">
+                        {cancelledItems.length} item{cancelledItems.length > 1 ? 's' : ''} cancelled
+                      </p>
+                    )}
                   </div>
 
-                  {order.status === 'Processing' ? (
+                  {canCancelOrder ? (
                     <CancelOrderButton orderId={order.id} />
                   ) : (
                     <p className="font-sans text-void-muted text-xs">Free worldwide shipping</p>
@@ -131,10 +168,10 @@ export default async function OrdersPage() {
         </div>
       )}
 
-      {orders && orders.length > 0 && (
+      {allOrders.length > 0 && (
         <div className="mt-8 pt-6 border-t border-void-border flex justify-between">
           <p className="font-sans text-void-muted text-xs">
-            {orders.length} order{orders.length !== 1 ? 's' : ''} · {totalItems} item{totalItems !== 1 ? 's' : ''}
+            {allOrders.length} order{allOrders.length !== 1 ? 's' : ''} · {totalItems} active item{totalItems !== 1 ? 's' : ''}
           </p>
           <p className="font-sans text-void-muted text-xs">
             Total · <span className="text-void-white">€{total.toLocaleString()}</span>

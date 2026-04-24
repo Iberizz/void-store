@@ -1,7 +1,7 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
 
 // ── Wishlist ──────────────────────────────────────────────────────────────────
+// NOTE: no auto-persist — UserStoreSync manages per-user localStorage keys
 
 export interface WishlistItem {
   id:    string
@@ -18,17 +18,12 @@ interface WishlistStore {
   hasItem:    (id: string) => boolean
 }
 
-export const useWishlistStore = create<WishlistStore>()(
-  persist(
-    (set, get) => ({
-      items: [],
-      addItem:    (item) => set((s) => ({ items: [...s.items.filter(i => i.id !== item.id), item] })),
-      removeItem: (id)   => set((s) => ({ items: s.items.filter(i => i.id !== id) })),
-      hasItem:    (id)   => get().items.some(i => i.id === id),
-    }),
-    { name: 'void-wishlist' }
-  )
-)
+export const useWishlistStore = create<WishlistStore>()((set, get) => ({
+  items: [],
+  addItem:    (item) => set((s) => ({ items: [...s.items.filter(i => i.id !== item.id), item] })),
+  removeItem: (id)   => set((s) => ({ items: s.items.filter(i => i.id !== id) })),
+  hasItem:    (id)   => get().items.some(i => i.id === id),
+}))
 
 export interface CartItem {
   id: string
@@ -50,43 +45,35 @@ interface CartStore {
   closeCart: () => void
 }
 
-export const useCartStore = create<CartStore>()(
-  persist(
-    (set) => ({
-      items: [],
-      isOpen: false,
+export const useCartStore = create<CartStore>()((set) => ({
+  items: [],
+  isOpen: false,
 
-      addItem: (item) =>
-        set((state) => {
-          const existing = state.items.find((i) => i.id === item.id)
-          if (existing) {
-            return {
-              items: state.items.map((i) =>
-                i.id === item.id ? { ...i, quantity: i.quantity + item.quantity } : i
-              ),
-            }
-          }
-          return { items: [...state.items, item] }
-        }),
-
-      removeItem: (id) =>
-        set((state) => ({ items: state.items.filter((i) => i.id !== id) })),
-
-      updateQuantity: (id, quantity) =>
-        set((state) => ({
-          items:
-            quantity <= 0
-              ? state.items.filter((i) => i.id !== id)
-              : state.items.map((i) => (i.id === id ? { ...i, quantity } : i)),
-        })),
-
-      clearCart: () => set({ items: [] }),
-      openCart:  () => set({ isOpen: true }),
-      closeCart: () => set({ isOpen: false }),
+  addItem: (item) =>
+    set((state) => {
+      const existing = state.items.find((i) => i.id === item.id)
+      if (existing) {
+        return {
+          items: state.items.map((i) =>
+            i.id === item.id ? { ...i, quantity: i.quantity + item.quantity } : i
+          ),
+        }
+      }
+      return { items: [...state.items, item] }
     }),
-    {
-      name: 'void-cart',
-      partialize: (state) => ({ items: state.items }),
-    }
-  )
-)
+
+  removeItem: (id) =>
+    set((state) => ({ items: state.items.filter((i) => i.id !== id) })),
+
+  updateQuantity: (id, quantity) =>
+    set((state) => ({
+      items:
+        quantity <= 0
+          ? state.items.filter((i) => i.id !== id)
+          : state.items.map((i) => (i.id === id ? { ...i, quantity } : i)),
+    })),
+
+  clearCart: () => set({ items: [] }),
+  openCart:  () => set({ isOpen: true }),
+  closeCart: () => set({ isOpen: false }),
+}))

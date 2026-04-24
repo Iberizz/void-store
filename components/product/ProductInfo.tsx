@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { Heart, Plus, Minus } from 'lucide-react'
 import gsap from 'gsap'
 import { useCartStore, useWishlistStore } from '@/lib/store'
+import { flyToCart } from '@/lib/flyToCart'
 import type { ProductData } from '@/lib/products'
 
 interface Props {
@@ -31,20 +32,30 @@ export default function ProductInfo({ product, selectedColor, onColorChange, sto
   const lowStock   = stock !== null && stock > 0 && stock <= 10
   const maxQty     = stock !== null && stock > 0 ? stock : 99
 
+  const itemId         = `${product.id}-${selectedColor}`
+  const inCart         = useCartStore((s) => s.items.find(i => i.id === itemId)?.quantity ?? 0)
+  const cartFull       = inCart >= maxQty
+  const canAdd         = !outOfStock && !cartFull
+
   const handleAddToCart = () => {
-    if (outOfStock) return
+    if (!canAdd) return
 
     const cartImage = selectedColor === 'white' ? product.images.white[0] : product.images.black[0]
     const cartName  = selectedColor === 'white' ? `${product.name} White` : product.name
+    const safeQty   = Math.min(qty, maxQty - inCart)
 
     addItem({
-      id:       `${product.id}-${selectedColor}`,
+      id:       itemId,
       slug:     product.slug,
       name:     cartName,
       price:    product.price,
-      quantity: qty,
+      quantity: safeQty,
       image:    cartImage,
     })
+
+    // Fly animation: product image → cart icon
+    const mainImg = document.querySelector<HTMLElement>('[data-product-main-image]')
+    if (mainImg) flyToCart(mainImg)
 
     // Button: compress → spring
     gsap.killTweensOf(btnRef.current)
@@ -61,7 +72,7 @@ export default function ProductInfo({ product, selectedColor, onColorChange, sto
       })
     }, 1400)
 
-    openCart()
+    setTimeout(() => openCart(), 600)
   }
 
   const handleQtyChange = (delta: number) => {
@@ -184,19 +195,19 @@ export default function ProductInfo({ product, selectedColor, onColorChange, sto
         <button
           ref={btnRef}
           onClick={handleAddToCart}
-          disabled={outOfStock}
+          disabled={!canAdd}
           data-cursor="pointer"
-          aria-label={outOfStock ? 'Out of stock' : `Ajouter ${product.name} au panier`}
+          aria-label={outOfStock ? 'Out of stock' : cartFull ? 'Max stock in cart' : `Ajouter ${product.name} au panier`}
           className="flex-1 font-sans font-medium uppercase transition-colors duration-300 relative overflow-hidden disabled:cursor-not-allowed"
           style={{
             fontSize: '11px',
             letterSpacing: '0.2em',
-            background: outOfStock ? '#1C1C1C' : added ? '#E8E8E8' : '#4DFFB4',
-            color: outOfStock ? '#444444' : '#000000',
+            background: outOfStock || cartFull ? '#1C1C1C' : added ? '#E8E8E8' : '#4DFFB4',
+            color: outOfStock || cartFull ? '#444444' : '#000000',
           }}
         >
           <span ref={labelRef} className="inline-block">
-            {outOfStock ? 'Out of stock' : added ? 'Added ✓' : 'Add to cart'}
+            {outOfStock ? 'Out of stock' : cartFull ? 'Max in cart' : added ? 'Added ✓' : 'Add to cart'}
           </span>
         </button>
 

@@ -22,10 +22,10 @@ export default async function AccountPage() {
   const firstName   = name.split(' ')[0]
   const memberSince = user?.created_at ? new Date(user.created_at).getFullYear() : '—'
 
-  // Real orders from Supabase
   const { data: orders } = await supabase
     .from('orders')
     .select('*')
+    .eq('user_id', user!.id)
     .order('created_at', { ascending: false })
 
   const allOrders  = orders ?? []

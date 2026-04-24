@@ -5,14 +5,28 @@ import Image from 'next/image'
 import { ChevronUp, ChevronDown, X, Trash2, Package, MapPin, CreditCard } from 'lucide-react'
 import gsap from 'gsap'
 import AdminSearchBar from '@/components/admin/AdminSearchBar'
-import { updateOrderStatus, deleteOrder, type OrderStatus } from '@/app/actions/orders'
+import { updateOrderStatus, deleteOrder, adminCancelOrderItem, type OrderStatus } from '@/app/actions/orders'
 
-type CartItem = { id: string; name: string; price: number; quantity: number; image: string; slug: string }
+type CartItem = {
+  id: string; name: string; price: number; quantity: number; image: string; slug: string
+  cancelled?: boolean; cancel_reason?: string
+}
 type Shipping  = { firstName: string; lastName: string; address?: string; city?: string; postal?: string; country?: string }
 type Order = {
   id: string; created_at: string; items: CartItem[]; shipping: Shipping
   card_brand: string; card_last4: string; total: number; status: string; user_id: string
 }
+type CancelItemTarget = { orderId: string; itemId: string; itemName: string; wholeOrder?: boolean }
+
+const CANCEL_REASONS = [
+  'Ordered by mistake',
+  'Found a better price',
+  'Item no longer needed',
+  'Delivery time too long',
+  'Changed my mind',
+  'Other',
+] as const
+
 type Filter  = 'all' | OrderStatus
 type SortKey = 'date' | 'amount' | 'customer'
 type SortDir = 'asc' | 'desc'
@@ -70,10 +84,16 @@ export default function AdminOrdersClient({ orders }: { orders: Order[] }) {
   const [deleting,      setDeleting]      = useState(false)
   const [deletedIds,    setDeletedIds]    = useState<Set<string>>(new Set())
   const [localStatuses, setLocalStatuses] = useState<Record<string, OrderStatus>>({})
+  const [cancelTarget,  setCancelTarget]  = useState<CancelItemTarget | null>(null)
+  const [cancelReason,  setCancelReason]  = useState<string>(CANCEL_REASONS[0])
+  const [cancelOther,   setCancelOther]   = useState('')
+  const [cancelError,   setCancelError]   = useState<string | null>(null)
+  const [cancelPending, setCancelPending] = useState(false)
   const [, startTransition] = useTransition()
 
-  const detailModal = useModal(!!selected)
-  const deleteModal = useModal(!!toDelete)
+  const detailModal      = useModal(!!selected)
+  const deleteModal      = useModal(!!toDelete)
+  const cancelItemModal  = useModal(!!cancelTarget)
 
   const getStatus = (o: Order): OrderStatus => (localStatuses[o.id] ?? o.status) as OrderStatus
 
@@ -111,6 +131,61 @@ export default function AdminOrdersClient({ orders }: { orders: Order[] }) {
     gsap.to(deleteModal.cardRef.current,    { opacity: 0, y: 8, duration: 0.2, ease: 'power2.in' })
     gsap.to(deleteModal.overlayRef.current, { opacity: 0, duration: 0.2, ease: 'power2.in', onComplete: () => setToDelete(null) })
   }, [deleteModal])
+
+  const closeCancelItem = useCallback(() => {
+    gsap.to(cancelItemModal.cardRef.current,    { opacity: 0, y: 8, duration: 0.2, ease: 'power2.in' })
+    gsap.to(cancelItemModal.overlayRef.current, { opacity: 0, duration: 0.2, ease: 'power2.in', onComplete: () => setCancelTarget(null) })
+  }, [cancelItemModal])
+
+  function openCancelItem(orderId: string, itemId: string, itemName: string, wholeOrder = false) {
+    setCancelReason(CANCEL_REASONS[0])
+    setCancelOther('')
+    setCancelError(null)
+    setCancelTarget({ orderId, itemId, itemName, wholeOrder })
+  }
+
+  async function handleCancelItem() {
+    if (!cancelTarget) return
+    const finalReason = cancelReason === 'Other' ? cancelOther.trim() : cancelReason
+    if (!finalReason) { setCancelError('Please specify a reason.'); return }
+
+    setCancelPending(true)
+    setCancelError(null)
+
+    if (cancelTarget.wholeOrder && selected) {
+      // Cancel all non-cancelled items of the order
+      const activeItems = (selected.items as CartItem[]).filter(i => !i.cancelled)
+      const results = await Promise.all(
+        activeItems.map(i => adminCancelOrderItem(cancelTarget.orderId, i.id, finalReason))
+      )
+      if (results.some(r => r?.error)) { setCancelError('Some items could not be cancelled.'); setCancelPending(false); return }
+
+      setSelected(prev => {
+        if (!prev) return prev
+        const updatedItems = (prev.items as CartItem[]).map(i => ({ ...i, cancelled: true, cancel_reason: finalReason }))
+        return { ...prev, items: updatedItems }
+      })
+      setLocalStatuses(s => ({ ...s, [cancelTarget.orderId]: 'Cancelled' }))
+    } else {
+      const result = await adminCancelOrderItem(cancelTarget.orderId, cancelTarget.itemId, finalReason)
+      if (result?.error) { setCancelError(result.error); setCancelPending(false); return }
+
+      if (selected?.id === cancelTarget.orderId) {
+        setSelected(prev => {
+          if (!prev) return prev
+          const updatedItems = (prev.items as CartItem[]).map(i =>
+            i.id === cancelTarget.itemId ? { ...i, cancelled: true, cancel_reason: finalReason } : i
+          )
+          const allCancelled = updatedItems.every(i => i.cancelled)
+          if (allCancelled) setLocalStatuses(s => ({ ...s, [prev.id]: 'Cancelled' }))
+          return { ...prev, items: updatedItems }
+        })
+      }
+    }
+
+    setCancelPending(false)
+    closeCancelItem()
+  }
 
   async function handleDelete() {
     if (!toDelete) return
@@ -302,7 +377,7 @@ export default function AdminOrdersClient({ orders }: { orders: Order[] }) {
         const items  = selected.items as CartItem[]
         const status = getStatus(selected)
         const s      = STATUS_STYLE[status] ?? STATUS_STYLE.Processing
-        const subtotal = items.reduce((acc, i) => acc + i.price * i.quantity, 0)
+        const subtotal = items.filter(i => !i.cancelled).reduce((acc, i) => acc + i.price * i.quantity, 0)
         const shipping = selected.total - subtotal
 
         return (
@@ -361,17 +436,40 @@ export default function AdminOrdersClient({ orders }: { orders: Order[] }) {
                   </div>
                   <div className="space-y-3">
                     {items.map(item => (
-                      <div key={item.id} className="flex items-center gap-3">
+                      <div key={item.id} className="flex items-center gap-3" style={{ opacity: item.cancelled ? 0.45 : 1 }}>
                         <div className="relative w-10 h-10 bg-void-card border border-void-border shrink-0">
-                          {item.image && <Image src={item.image} alt={item.name} fill className="object-contain p-1" sizes="40px" />}
+                          {item.image && (
+                            <Image
+                              src={item.image} alt={item.name} fill
+                              className={`object-contain p-1 ${item.cancelled ? 'grayscale' : ''}`}
+                              sizes="40px"
+                            />
+                          )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-sans text-void-white text-xs truncate">{item.name}</p>
+                          <p className={`font-sans text-xs truncate ${item.cancelled ? 'line-through text-void-muted' : 'text-void-white'}`}>
+                            {item.name}
+                          </p>
                           <p className="font-sans text-void-muted text-[10px]">× {item.quantity}</p>
+                          {item.cancelled && item.cancel_reason && (
+                            <p className="font-sans text-[10px] text-[#FF6B6B]/60 mt-0.5">{item.cancel_reason}</p>
+                          )}
                         </div>
-                        <p className="font-sans text-void-white text-xs shrink-0">
+                        <p className={`font-sans text-xs shrink-0 ${item.cancelled ? 'line-through text-void-muted' : 'text-void-white'}`}>
                           €{(item.price * item.quantity).toLocaleString()}
                         </p>
+                        {item.cancelled ? (
+                          <span className="font-sans text-[9px] tracking-[0.1em] uppercase text-[#FF6B6B]/60 border border-[#FF6B6B]/20 px-1.5 py-0.5 shrink-0">
+                            Cancelled
+                          </span>
+                        ) : status === 'Processing' && (
+                          <button
+                            onClick={() => openCancelItem(selected.id, item.id, item.name)}
+                            className="font-sans text-[9px] tracking-[0.1em] uppercase text-[#FF6B6B]/60 border border-[#FF6B6B]/20 px-1.5 py-0.5 shrink-0 hover:text-[#FF6B6B] hover:border-[#FF6B6B]/50 transition-colors duration-150"
+                          >
+                            Cancel
+                          </button>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -429,8 +527,12 @@ export default function AdminOrdersClient({ orders }: { orders: Order[] }) {
                   className="flex-1 py-3 border border-void-border text-void-muted font-sans text-xs tracking-[0.15em] uppercase hover:text-void-white hover:border-void-white transition-colors duration-200">
                   Close
                 </button>
-                <button onClick={() => { closeDetail(); setTimeout(() => setToDelete(selected), 250) }}
-                  className="py-3 px-6 bg-[#FF6B6B]/10 border border-[#FF6B6B]/40 text-[#FF6B6B] font-sans text-xs tracking-[0.15em] uppercase hover:bg-[#FF6B6B]/20 transition-colors duration-200">
+                <button
+                  onClick={() => openCancelItem(selected.id, '__ALL__', `Order #${selected.id.slice(0, 8).toUpperCase()}`, true)}
+                  disabled={getStatus(selected) === 'Cancelled'}
+                  className="py-3 px-6 bg-[#FF6B6B]/10 border border-[#FF6B6B]/40 text-[#FF6B6B] font-sans text-xs tracking-[0.15em] uppercase hover:bg-[#FF6B6B]/20 transition-colors duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
+                  aria-label="Cancel entire order"
+                >
                   <Trash2 size={13} strokeWidth={1.5} />
                 </button>
               </div>
@@ -438,6 +540,74 @@ export default function AdminOrdersClient({ orders }: { orders: Order[] }) {
           </div>
         )
       })()}
+
+      {/* ── Cancel item modal ── */}
+      {cancelTarget && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div ref={cancelItemModal.overlayRef} onClick={closeCancelItem} className="absolute inset-0 bg-black/80" aria-hidden="true" />
+          <div ref={cancelItemModal.cardRef}
+            className="relative z-10 w-full max-w-sm bg-void-surface border border-void-border px-8 py-8"
+            role="dialog" aria-modal="true" aria-label="Cancel item">
+            <button onClick={closeCancelItem} aria-label="Close"
+              className="absolute top-4 right-4 text-void-muted hover:text-void-white transition-colors">
+              <X size={16} strokeWidth={1.5} />
+            </button>
+
+            <p className="font-sans text-void-muted text-[10px] tracking-[0.2em] uppercase mb-3">
+              {cancelTarget.wholeOrder ? 'Cancel order' : 'Cancel item'}
+            </p>
+            <h2 className="font-display text-void-white text-xl tracking-tight mb-1 leading-tight">
+              {cancelTarget.itemName}
+            </h2>
+            <p className="font-sans text-void-muted text-sm mb-5">
+              {cancelTarget.wholeOrder ? 'All items will be cancelled.' : 'Select a reason for cancellation.'}
+            </p>
+
+            {/* Preset reasons */}
+            <div className="flex flex-col gap-1.5 mb-4">
+              {CANCEL_REASONS.map(r => (
+                <button key={r} onClick={() => setCancelReason(r)}
+                  className="text-left font-sans text-xs py-2 px-3 border transition-colors duration-150"
+                  style={{
+                    borderColor: cancelReason === r ? '#4DFFB4' : '#1C1C1C',
+                    color:       cancelReason === r ? '#E8E8E8' : '#666666',
+                    background:  cancelReason === r ? 'rgba(77,255,180,0.04)' : 'transparent',
+                  }}>
+                  {r}
+                </button>
+              ))}
+            </div>
+
+            {cancelReason === 'Other' && (
+              <div className="mb-4">
+                <input
+                  type="text"
+                  value={cancelOther}
+                  onChange={e => setCancelOther(e.target.value)}
+                  placeholder="Describe the reason…"
+                  maxLength={120}
+                  className="w-full bg-transparent border-b border-[#1C1C1C] text-[#E8E8E8] font-sans text-sm pb-2 outline-none placeholder:text-[#333] focus:border-[#4DFFB4] transition-colors duration-300"
+                />
+              </div>
+            )}
+
+            {cancelError && (
+              <p className="font-sans text-xs text-[#FF6B6B] mb-3">{cancelError}</p>
+            )}
+
+            <div className="flex gap-3 mt-5">
+              <button onClick={closeCancelItem}
+                className="flex-1 py-3 border border-void-border text-void-muted font-sans text-xs tracking-[0.15em] uppercase hover:text-void-white hover:border-void-white transition-colors duration-200">
+                Keep it
+              </button>
+              <button onClick={handleCancelItem} disabled={cancelPending}
+                className="flex-1 py-3 bg-[#FF6B6B]/10 border border-[#FF6B6B]/40 text-[#FF6B6B] font-sans text-xs tracking-[0.15em] uppercase hover:bg-[#FF6B6B]/20 transition-colors duration-200 disabled:opacity-40">
+                {cancelPending ? 'Cancelling…' : 'Confirm'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Delete confirm modal ── */}
       {toDelete && (

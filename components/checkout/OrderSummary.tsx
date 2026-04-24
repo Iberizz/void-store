@@ -20,10 +20,12 @@ export default function OrderSummary({ items, subtotal }: Props) {
       <ul className="space-y-4 mb-6 pb-6 border-b border-void-border" role="list">
         {items.map((item) => (
           <li key={item.id} className="flex items-center gap-4">
-            <div className="relative w-12 h-12 bg-void-card border border-void-border shrink-0 overflow-hidden">
-              <Image src={item.image} alt={item.name} fill className="object-contain p-1" sizes="48px" />
-              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-void-muted flex items-center justify-center">
-                <span className="font-sans text-[9px] text-void-base">{item.quantity}</span>
+            <div className="relative w-12 h-12 shrink-0">
+              <div className="w-full h-full bg-void-card border border-void-border overflow-hidden">
+                <Image src={item.image} alt={item.name} fill className="object-contain p-1" sizes="48px" />
+              </div>
+              <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-void-muted flex items-center justify-center">
+                <span className="font-sans text-[9px] text-void-base leading-none">{item.quantity}</span>
               </span>
             </div>
             <div className="flex-1 min-w-0">

@@ -70,7 +70,7 @@ export default function AboutPage() {
   }, [])
 
   return (
-    <main className="relative z-10 bg-[#000000] overflow-x-hidden" aria-label="À propos de VØID">
+    <main className="relative z-10 bg-[#000000]" style={{ overflowX: 'clip' }} aria-label="À propos de VØID">
 
       {/* ─────── HERO ─────── */}
       <section className="relative min-h-screen flex flex-col justify-end px-8 md:px-16 pb-16 pt-32 border-b border-[#1C1C1C] overflow-hidden">

@@ -55,7 +55,7 @@ export default function ProductGallery({ images, name, category }: Props) {
 
       {/* Main image */}
       <div className="relative flex-1 overflow-hidden">
-        <div ref={imgRef} className="absolute inset-0 p-6 md:p-12">
+        <div ref={imgRef} className="absolute inset-0 p-6 md:p-12" data-product-main-image>
           <div className="relative w-full h-full">
             <Image
               src={images[active]}
