@@ -2,25 +2,17 @@
 
 import { useState } from 'react'
 import ProductCard from '@/components/product/ProductCard'
+import type { CollectionItem } from './page'
 
 const FILTERS = ['All', 'Over-ear', 'In-ear', 'Studio'] as const
 type Filter = typeof FILTERS[number]
 
-const PRODUCTS = [
-  { id: 'void-pro',          name: 'VØID Pro',          price: '€890',   category: 'Over-ear', slug: 'void-pro',              imageSrc: '/images/void-pro-transparent.png'       },
-  { id: 'void-air',          name: 'VØID Air',          price: '€590',   category: 'In-ear',   slug: 'void-air',              imageSrc: '/images/void-air-transparent.png'       },
-  { id: 'void-studio',       name: 'VØID Studio',       price: '€1,290', category: 'Studio',   slug: 'void-studio',           imageSrc: '/images/void-studio-transparent.png'    },
-  { id: 'void-pro-white',    name: 'VØID Pro White',    price: '€890',   category: 'Over-ear', slug: 'void-pro?color=white',  imageSrc: '/images/void-pro-white-transparent.png' },
-  { id: 'void-air-white',    name: 'VØID Air White',    price: '€590',   category: 'In-ear',   slug: 'void-air?color=white',  imageSrc: '/images/void-air-white-transparent.png' },
-  { id: 'void-studio-white', name: 'VØID Studio White', price: '€1,290', category: 'Studio',   slug: 'void-studio?color=white', imageSrc: '/images/void-studio-white-transparent.png' },
-]
-
-export default function CollectionClient() {
+export default function CollectionClient({ products }: { products: CollectionItem[] }) {
   const [active, setActive] = useState<Filter>('All')
 
   const filtered = active === 'All'
-    ? PRODUCTS
-    : PRODUCTS.filter(p => p.category === active)
+    ? products
+    : products.filter(p => p.category === active)
 
   return (
     <>

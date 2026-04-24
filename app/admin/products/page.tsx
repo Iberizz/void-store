@@ -9,7 +9,7 @@ export default async function AdminProductsPage() {
 
   const { data: products } = await supabase
     .from('products')
-    .select('*')
+    .select('id, slug, name, price, stock, category, description, image_vitrine, image_black, image_white')
     .order('price', { ascending: false })
 
   return (

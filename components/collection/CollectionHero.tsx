@@ -7,7 +7,7 @@ import { SplitText } from 'gsap/SplitText'
 
 gsap.registerPlugin(SplitText)
 
-export default function CollectionHero() {
+export default function CollectionHero({ count = 6 }: { count?: number }) {
   const watermarkRef = useRef<HTMLHeadingElement>(null)
   const imgRef       = useRef<HTMLDivElement>(null)
   const specsRef     = useRef<HTMLDivElement>(null)
@@ -92,7 +92,7 @@ export default function CollectionHero() {
 
       {/* ── Count — top right ── */}
       <div className="absolute text-right" style={{ top: 32, right: 32, zIndex: 4 }}>
-        <p className="font-sans font-light uppercase text-[#666666]" style={{ fontSize: '9px', letterSpacing: '0.2em' }}>6 instruments</p>
+        <p className="font-sans font-light uppercase text-[#666666]" style={{ fontSize: '9px', letterSpacing: '0.2em' }}>{count} instruments</p>
         <p className="font-sans font-light uppercase text-[#666666] mt-1" style={{ fontSize: '9px', letterSpacing: '0.2em' }}>Engineered for silence</p>
       </div>
 

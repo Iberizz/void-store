@@ -4,12 +4,13 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
 import { logout } from '@/app/actions/auth'
-import { LayoutDashboard, ShoppingBag, User as UserIcon, LogOut } from 'lucide-react'
+import { LayoutDashboard, ShoppingBag, Heart, User as UserIcon, LogOut } from 'lucide-react'
 
 const NAV = [
-  { href: '/account',         label: 'Overview',  icon: LayoutDashboard },
-  { href: '/account/orders',  label: 'Orders',    icon: ShoppingBag     },
-  { href: '/account/profile', label: 'Profile',   icon: UserIcon        },
+  { href: '/account',          label: 'Overview',  icon: LayoutDashboard },
+  { href: '/account/orders',   label: 'Orders',    icon: ShoppingBag     },
+  { href: '/account/wishlist', label: 'Wishlist',  icon: Heart           },
+  { href: '/account/profile',  label: 'Profile',   icon: UserIcon        },
 ] as const
 
 export default function AccountSidebar({ user }: { user: User }) {

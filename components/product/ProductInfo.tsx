@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import { Heart, Plus, Minus } from 'lucide-react'
 import gsap from 'gsap'
-import { useCartStore } from '@/lib/store'
+import { useCartStore, useWishlistStore } from '@/lib/store'
 import type { ProductData } from '@/lib/products'
 
 interface Props {
@@ -16,14 +16,17 @@ interface Props {
 export default function ProductInfo({ product, selectedColor, onColorChange, stock = null }: Props) {
   const [qty,           setQty]          = useState(1)
   const [openAccordion, setOpenAccordion] = useState(false)
-  const [wished,        setWished]        = useState(false)
   const [added,         setAdded]         = useState(false)
   const btnRef    = useRef<HTMLButtonElement>(null)
   const labelRef  = useRef<HTMLSpanElement>(null)
   const qtyRef    = useRef<HTMLSpanElement>(null)
-  const addItem   = useCartStore((s) => s.addItem)
-  const openCart  = useCartStore((s) => s.openCart)
+  const addItem        = useCartStore((s) => s.addItem)
+  const openCart       = useCartStore((s) => s.openCart)
+  const addToWishlist  = useWishlistStore((s) => s.addItem)
+  const removeWishlist = useWishlistStore((s) => s.removeItem)
+  const isWished       = useWishlistStore((s) => s.hasItem(`${product.id}-${selectedColor}`))
 
+  const hasWhite   = product.images.white.length > 0 && !!product.images.white[0]
   const outOfStock = stock !== null && stock <= 0
   const lowStock   = stock !== null && stock > 0 && stock <= 10
   const maxQty     = stock !== null && stock > 0 ? stock : 99
@@ -122,12 +125,14 @@ export default function ProductInfo({ product, selectedColor, onColorChange, sto
           title="Black"
           style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#1A1A1A', border: `2px solid ${selectedColor === 'black' ? '#4DFFB4' : 'transparent'}`, transition: 'border-color 0.2s ease', cursor: 'pointer' }}
         />
-        {/* White */}
-        <button onClick={() => onColorChange('white')}
-          aria-label="White" data-cursor="pointer"
-          title="White"
-          style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#E8E8E8', border: `2px solid ${selectedColor === 'white' ? '#4DFFB4' : 'transparent'}`, transition: 'border-color 0.2s ease', cursor: 'pointer' }}
-        />
+        {/* White — only if a white variant exists */}
+        {hasWhite && (
+          <button onClick={() => onColorChange('white')}
+            aria-label="White" data-cursor="pointer"
+            title="White"
+            style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#E8E8E8', border: `2px solid ${selectedColor === 'white' ? '#4DFFB4' : 'transparent'}`, transition: 'border-color 0.2s ease', cursor: 'pointer' }}
+          />
+        )}
       </div>
 
       {/* Stock indicator */}
@@ -196,10 +201,26 @@ export default function ProductInfo({ product, selectedColor, onColorChange, sto
         </button>
 
         {/* Wishlist */}
-        <button onClick={() => setWished(w => !w)} aria-label="Ajouter aux favoris" data-cursor="pointer"
+        <button
+          onClick={() => {
+            const itemId = `${product.id}-${selectedColor}`
+            if (isWished) {
+              removeWishlist(itemId)
+            } else {
+              addToWishlist({
+                id:    itemId,
+                slug:  product.slug,
+                name:  selectedColor === 'white' ? `${product.name} White` : product.name,
+                price: product.price,
+                image: selectedColor === 'white' ? product.images.white[0] : product.images.black[0],
+              })
+            }
+          }}
+          aria-label={isWished ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+          data-cursor="pointer"
           className="border border-[#1C1C1C] px-4 hover:border-[#4DFFB4] transition-colors duration-200"
-          style={{ color: wished ? '#4DFFB4' : '#666666' }}>
-          <Heart size={16} strokeWidth={1.5} fill={wished ? '#4DFFB4' : 'none'} />
+          style={{ color: isWished ? '#4DFFB4' : '#666666' }}>
+          <Heart size={16} strokeWidth={1.5} fill={isWished ? '#4DFFB4' : 'none'} />
         </button>
       </div>
 
