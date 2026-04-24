@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import WishlistPreview from '@/components/account/WishlistPreview'
 
 const STATUS_STYLES: Record<string, { color: string; bg: string }> = {
   Delivered:  { color: '#4DFFB4', bg: 'rgba(77,255,180,0.08)'  },
@@ -105,6 +106,9 @@ export default async function AccountPage() {
           </div>
         )}
       </div>
+
+      {/* Wishlist */}
+      <WishlistPreview />
 
       {/* CTA */}
       <div className="border border-void-border p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">

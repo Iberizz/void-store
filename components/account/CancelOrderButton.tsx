@@ -40,7 +40,7 @@ export default function CancelOrderButton({ orderId }: { orderId: string }) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="font-sans text-xs tracking-[0.1em] uppercase text-[#444] hover:text-[#FF6B6B] transition-colors duration-200"
+        className="font-sans text-xs tracking-[0.1em] uppercase text-[#FF6B6B] border border-[#FF6B6B]/30 px-3 py-1.5 hover:border-[#FF6B6B] hover:bg-[#FF6B6B]/10 transition-colors duration-200"
       >
         Cancel order
       </button>

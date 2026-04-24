@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
-import { Pencil, Plus, Trash2 } from 'lucide-react'
+import { Pencil, Plus, Trash2, X } from 'lucide-react'
+import gsap from 'gsap'
 import ProductEditModal   from '@/components/admin/ProductEditModal'
 import ProductCreateModal from '@/components/admin/ProductCreateModal'
 import AdminSearchBar     from '@/components/admin/AdminSearchBar'
@@ -15,11 +16,30 @@ type Product = {
 }
 
 export default function AdminProductsClient({ products }: { products: Product[] }) {
-  const [editing,     setEditing]     = useState<Product | null>(null)
-  const [creating,    setCreating]    = useState(false)
-  const [query,       setQuery]       = useState('')
-  const [confirmDel,  setConfirmDel]  = useState<string | null>(null) // product id pending delete
-  const [deleting,    setDeleting]    = useState(false)
+  const [editing,    setEditing]    = useState<Product | null>(null)
+  const [creating,   setCreating]   = useState(false)
+  const [query,      setQuery]      = useState('')
+  const [confirmDel, setConfirmDel] = useState<string | null>(null)
+  const [deleting,   setDeleting]   = useState(false)
+  const overlayRef                  = useRef<HTMLDivElement>(null)
+  const cardRef                     = useRef<HTMLDivElement>(null)
+
+  const pendingProduct = products.find(p => p.id === confirmDel) ?? null
+
+  useEffect(() => {
+    if (!confirmDel) return
+    const overlay = overlayRef.current
+    const blockWheel = (e: WheelEvent) => e.preventDefault()
+    overlay?.addEventListener('wheel', blockWheel, { passive: false })
+    gsap.fromTo(overlay,       { opacity: 0 }, { opacity: 1, duration: 0.25, ease: 'power2.out' })
+    gsap.fromTo(cardRef.current, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.35, ease: 'expo.out' })
+    return () => overlay?.removeEventListener('wheel', blockWheel)
+  }, [confirmDel])
+
+  function handleCloseModal() {
+    gsap.to(cardRef.current,    { opacity: 0, y: 8,  duration: 0.2, ease: 'power2.in' })
+    gsap.to(overlayRef.current, { opacity: 0, duration: 0.2, ease: 'power2.in', onComplete: () => setConfirmDel(null) })
+  }
 
   const filtered = query.trim()
     ? products.filter(p =>
@@ -33,8 +53,8 @@ export default function AdminProductsClient({ products }: { products: Product[] 
   async function handleDelete(id: string) {
     setDeleting(true)
     await deleteProduct(id)
-    setConfirmDel(null)
     setDeleting(false)
+    handleCloseModal()
   }
 
   return (
@@ -115,34 +135,14 @@ export default function AdminProductsClient({ products }: { products: Product[] 
 
                 {/* Actions */}
                 <div className="flex items-center gap-1">
-                  {isPendingDelete ? (
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => handleDelete(product.id)}
-                        disabled={deleting}
-                        className="px-2 py-1 bg-red-500/20 text-red-400 font-sans text-[10px] tracking-[0.1em] uppercase hover:bg-red-500/30 transition-colors duration-150 disabled:opacity-40"
-                      >
-                        {deleting ? '…' : 'Confirm'}
-                      </button>
-                      <button
-                        onClick={() => setConfirmDel(null)}
-                        className="px-2 py-1 text-void-muted font-sans text-[10px] tracking-[0.1em] uppercase hover:text-void-white transition-colors duration-150"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  ) : (
-                    <>
-                      <button onClick={() => setEditing(product)} aria-label={`Edit ${product.name}`}
-                        className="p-2 text-void-muted hover:text-void-green transition-colors duration-200">
-                        <Pencil size={14} strokeWidth={1.5} />
-                      </button>
-                      <button onClick={() => setConfirmDel(product.id)} aria-label={`Delete ${product.name}`}
-                        className="p-2 text-void-muted hover:text-red-400 transition-colors duration-200">
-                        <Trash2 size={14} strokeWidth={1.5} />
-                      </button>
-                    </>
-                  )}
+                  <button onClick={() => setEditing(product)} aria-label={`Edit ${product.name}`}
+                    className="p-2 text-void-muted hover:text-void-green transition-colors duration-200">
+                    <Pencil size={14} strokeWidth={1.5} />
+                  </button>
+                  <button onClick={() => setConfirmDel(product.id)} aria-label={`Delete ${product.name}`}
+                    className="p-2 text-void-muted hover:text-red-400 transition-colors duration-200">
+                    <Trash2 size={14} strokeWidth={1.5} />
+                  </button>
                 </div>
               </div>
             )
@@ -159,8 +159,64 @@ export default function AdminProductsClient({ products }: { products: Product[] 
         </div>
       </div>
 
-      <ProductEditModal   product={editing}  onClose={() => setEditing(null)} />
-      <ProductCreateModal open={creating}    onClose={() => setCreating(false)} />
+      <ProductEditModal   product={editing} onClose={() => setEditing(null)} />
+      <ProductCreateModal open={creating}   onClose={() => setCreating(false)} />
+
+      {/* Delete confirmation modal */}
+      {confirmDel && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            ref={overlayRef}
+            onClick={handleCloseModal}
+            className="absolute inset-0 bg-black/70"
+            aria-hidden="true"
+          />
+          <div
+            ref={cardRef}
+            className="relative z-10 w-full max-w-sm bg-void-surface border border-void-border px-8 py-8"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Confirm product deletion"
+          >
+            <button
+              onClick={handleCloseModal}
+              aria-label="Close"
+              className="absolute top-4 right-4 text-void-muted hover:text-void-white transition-colors"
+            >
+              <X size={16} strokeWidth={1.5} />
+            </button>
+
+            <p className="font-sans text-void-muted text-[10px] tracking-[0.2em] uppercase mb-3">
+              {pendingProduct?.category ?? 'Product'}
+            </p>
+            <h2 className="font-display text-void-white text-2xl tracking-tight mb-2">
+              Delete this product?
+            </h2>
+            <p className="font-sans text-void-muted text-sm leading-relaxed mb-1">
+              <span className="text-void-white">{pendingProduct?.name}</span>
+            </p>
+            <p className="font-sans text-void-muted text-sm leading-relaxed mb-8">
+              This action cannot be undone. The product will be permanently removed from the catalog.
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                onClick={handleCloseModal}
+                className="flex-1 py-3 border border-void-border text-void-muted font-sans text-xs tracking-[0.15em] uppercase hover:text-void-white hover:border-void-white transition-colors duration-200"
+              >
+                Keep it
+              </button>
+              <button
+                onClick={() => handleDelete(confirmDel)}
+                disabled={deleting}
+                className="flex-1 py-3 bg-[#FF6B6B]/10 border border-[#FF6B6B]/40 text-[#FF6B6B] font-sans text-xs tracking-[0.15em] uppercase hover:bg-[#FF6B6B]/20 transition-colors duration-200 disabled:opacity-40"
+              >
+                {deleting ? 'Deleting…' : 'Yes, delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }
