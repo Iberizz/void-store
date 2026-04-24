@@ -5,6 +5,7 @@ import Image from 'next/image'
 import gsap from 'gsap'
 import { X } from 'lucide-react'
 import { updateProduct, type ProductUpdate } from '@/app/actions/products'
+import SpecsEditor from '@/components/admin/SpecsEditor'
 
 type Product = {
   id:             string
@@ -16,6 +17,8 @@ type Product = {
   image_black:    string
   image_white:    string
   category:       string
+  specs:          string[]
+  details:        { label: string; value: string }[]
 }
 
 type Props = {
@@ -41,6 +44,8 @@ export default function ProductEditModal({ product, onClose }: Props) {
     image_vitrine: '',
     image_black:   '',
     image_white:   '',
+    specs:         [],
+    details:       [],
   })
 
   useEffect(() => {
@@ -53,6 +58,8 @@ export default function ProductEditModal({ product, onClose }: Props) {
         image_vitrine: product.image_vitrine ?? '',
         image_black:   product.image_black   ?? '',
         image_white:   product.image_white   ?? '',
+        specs:         product.specs   ?? [],
+        details:       product.details ?? [],
       })
       setError(null)
       setSuccess(false)
@@ -196,6 +203,13 @@ export default function ProductEditModal({ product, onClose }: Props) {
                 onChange={e => setForm(f => ({ ...f, image_white: e.target.value }))} />
             </div>
           </div>
+
+          <SpecsEditor
+            specs={form.specs}
+            details={form.details}
+            onSpecsChange={s => setForm(f => ({ ...f, specs: s }))}
+            onDetailsChange={d => setForm(f => ({ ...f, details: d }))}
+          />
 
           {error   && <p className="font-sans text-sm text-red-400">{error}</p>}
           {success && <p className="font-sans text-sm text-void-green">Saved successfully.</p>}

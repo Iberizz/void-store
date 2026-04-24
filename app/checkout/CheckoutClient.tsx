@@ -60,9 +60,14 @@ export default function CheckoutClient({ userEmail = '' }: { userEmail?: string 
   })
   const [card, setCard] = useState<Card>({ number: '', name: '', expiry: '', cvv: '' })
 
-  const subtotal    = items.reduce((s, i) => s + i.price * i.quantity, 0)
-  const brand       = detectBrand(card.number)
-  const submittedRef = useRef(false)
+  const subtotal      = items.reduce((s, i) => s + i.price * i.quantity, 0)
+  const brand         = detectBrand(card.number)
+  const submittedRef  = useRef(false)
+  const [frozenTotal, setFrozenTotal] = useState<number | null>(null)
+  const [frozenItems, setFrozenItems] = useState<typeof items | null>(null)
+
+  const displayTotal = frozenTotal ?? subtotal
+  const displayItems = frozenItems ?? items
 
   useEffect(() => {
     // Don't redirect if we just placed an order — navigation is handled by window.location.href
@@ -135,6 +140,8 @@ export default function CheckoutClient({ userEmail = '' }: { userEmail?: string 
       setLoading(false)
     } else if (result?.orderId) {
       submittedRef.current = true
+      setFrozenTotal(subtotal)
+      setFrozenItems([...items])
 
       // Send order confirmation email (fire & forget — don't block redirect)
       try {
@@ -367,7 +374,7 @@ export default function CheckoutClient({ userEmail = '' }: { userEmail?: string 
                       {loading ? (
                         <>Processing...</>
                       ) : (
-                        <><Lock size={13} /> Place Order — €{subtotal.toLocaleString()}</>
+                        <><Lock size={13} /> Place Order — €{displayTotal.toLocaleString()}</>
                       )}
                     </button>
                   </div>
@@ -378,7 +385,7 @@ export default function CheckoutClient({ userEmail = '' }: { userEmail?: string 
 
           {/* ── Right: Order Summary ── */}
           <div className="lg:sticky lg:top-28 h-fit">
-            <OrderSummary items={items} subtotal={subtotal} />
+            <OrderSummary items={displayItems} subtotal={displayTotal} />
           </div>
         </div>
       </div>

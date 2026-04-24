@@ -41,7 +41,7 @@ export default function ProductPageClient({ product, initialColor, stockByColor 
       <div className="flex flex-col md:grid flex-1" style={{ gridTemplateColumns: '1fr 1fr', minHeight: '85vh' }}>
 
         {/* Left — Gallery */}
-        <div className="relative border-r border-[#1C1C1C]" style={{ minHeight: '60vh' }}>
+        <div className="relative border-r border-[#1C1C1C] h-[60vh] md:h-auto">
           <ProductGallery
             images={currentImages}
             name={product.name}

@@ -5,6 +5,7 @@ import Image from 'next/image'
 import gsap from 'gsap'
 import { X } from 'lucide-react'
 import { createProduct, type ProductCreate } from '@/app/actions/products'
+import SpecsEditor from '@/components/admin/SpecsEditor'
 
 const CATEGORIES = ['Over-ear', 'In-ear', 'Studio']
 
@@ -23,6 +24,8 @@ const EMPTY: ProductCreate = {
   image_vitrine_black: '',
   image_white:         '',
   image_vitrine_white: '',
+  specs:               [],
+  details:             [],
 }
 
 type Props = { open: boolean; onClose: () => void }
@@ -230,6 +233,13 @@ export default function ProductCreateModal({ open, onClose }: Props) {
             vitrineImage={form.image_vitrine_white}  onVitrineImage={v => setForm(f => ({ ...f, image_vitrine_white: v }))}
             productPlaceholder="/images/void-pro-max-white.png"
             vitrinePlaceholder="/images/void-pro-max-white-transparent.png"
+          />
+
+          <SpecsEditor
+            specs={form.specs}
+            details={form.details}
+            onSpecsChange={s => setForm(f => ({ ...f, specs: s }))}
+            onDetailsChange={d => setForm(f => ({ ...f, details: d }))}
           />
 
           {error   && <p className="font-sans text-sm text-red-400">{error}</p>}

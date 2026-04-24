@@ -18,6 +18,17 @@ export async function submitContact(payload: {
   return { success: true }
 }
 
+export async function deleteMessage(id: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user?.user_metadata?.is_admin) return { error: 'Unauthorized' }
+
+  const admin = createAdminClient()
+  const { error } = await admin.from('contact_messages').delete().eq('id', id)
+  if (error) return { error: error.message }
+  return { success: true }
+}
+
 export async function updateMessageStatus(id: string, status: MessageStatus) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

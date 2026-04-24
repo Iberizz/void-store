@@ -14,7 +14,7 @@ type Message = {
   status:  string
 }
 
-export default function MessageReplyModal({ msg, onClose }: { msg: Message; onClose: () => void }) {
+export default function MessageReplyModal({ msg, onClose, onReplied }: { msg: Message; onClose: () => void; onReplied?: () => void }) {
   const [reply,   setReply]   = useState('')
   const [sending, setSending] = useState(false)
   const [sent,    setSent]    = useState(false)
@@ -63,6 +63,7 @@ export default function MessageReplyModal({ msg, onClose }: { msg: Message; onCl
       })
 
       setSent(true)
+      onReplied?.()
     } catch (e: unknown) {
       const msg = e instanceof Error
         ? e.message
