@@ -39,7 +39,12 @@ export default function UserStoreSync() {
         loadingFromSource = true
 
         // Wishlist — source of truth: user_metadata (persists across devices/sessions)
-        const wishlist = (session.user.user_metadata?.wishlist as WishlistItem[] | undefined) ?? []
+        let wishlist: WishlistItem[] = []
+
+        if (session?.user?.user_metadata?.wishlist) {
+          wishlist = session.user.user_metadata.wishlist as WishlistItem[]
+        }
+
         useWishlistStore.setState({ items: wishlist })
 
         // Cart — localStorage only (per-device, session data)
