@@ -232,13 +232,13 @@ export default function ContactPage() {
         <div className="flex items-end justify-between gap-8 relative z-10">
           <p
             ref={subtitleRef}
-            className="font-sans font-light text-[#444444] leading-relaxed max-w-sm"
+            className="font-sans font-light text-[#666666] leading-relaxed max-w-sm"
             style={{ fontSize: "14px" }}
           >
             Every message is read by a human. We reply personally within 48 hours.
           </p>
           <span
-            className="hidden md:flex items-center gap-3 font-mono text-[#1E1E1E] shrink-0"
+            className="hidden md:flex items-center gap-3 font-mono text-[#3A3A3A] shrink-0"
             style={{ fontSize: "10px", letterSpacing: "0.2em" }}
           >
             <span className="inline-block w-8 h-px bg-[#4DFFB4]" />
@@ -297,12 +297,12 @@ export default function ContactPage() {
             {/* Studio */}
             <div className="flex flex-col gap-1" data-panel>
               <p
-                className="font-mono text-[#252525] uppercase mb-2"
+                className="font-mono text-[#555555] uppercase mb-2"
                 style={{ fontSize: "9px", letterSpacing: "0.3em" }}
               >
                 Studio
               </p>
-              <p className="font-sans font-light text-[#555555]" style={{ fontSize: "14px" }}>
+              <p className="font-sans font-light text-[#666666]" style={{ fontSize: "14px" }}>
                 Paris, France
               </p>
             </div>
@@ -310,14 +310,14 @@ export default function ContactPage() {
             {/* Email */}
             <div className="flex flex-col gap-1" data-panel>
               <p
-                className="font-mono text-[#252525] uppercase mb-2"
+                className="font-mono text-[#555555] uppercase mb-2"
                 style={{ fontSize: "9px", letterSpacing: "0.3em" }}
               >
                 Email
               </p>
               <a
                 href="mailto:contact@void-studio.com"
-                className="font-sans font-light text-[#555555] hover:text-[#4DFFB4] transition-colors duration-200"
+                className="font-sans font-light text-[#666666] hover:text-[#4DFFB4] transition-colors duration-200"
                 style={{ fontSize: "14px" }}
               >
                 contact@void-studio.com
@@ -327,7 +327,7 @@ export default function ContactPage() {
             {/* Response time — big stat */}
             <div className="flex flex-col gap-2" data-panel>
               <p
-                className="font-mono text-[#252525] uppercase mb-2"
+                className="font-mono text-[#555555] uppercase mb-2"
                 style={{ fontSize: "9px", letterSpacing: "0.3em" }}
               >
                 Response time
@@ -339,7 +339,7 @@ export default function ContactPage() {
                 <span className="text-[#E8E8E8]">&lt;&nbsp;48</span>
                 <span className="text-[#4DFFB4]">H</span>
               </div>
-              <p className="font-sans font-light text-[#252525]" style={{ fontSize: "12px" }}>
+              <p className="font-sans font-light text-[#555555]" style={{ fontSize: "12px" }}>
                 Guaranteed personal reply.
               </p>
             </div>
@@ -349,7 +349,7 @@ export default function ContactPage() {
           <div className="flex flex-col gap-4 mt-10 lg:mt-0" data-panel>
             <div className="w-full h-px bg-[#1C1C1C]" />
             <p
-              className="font-sans font-light text-[#1E1E1E] leading-relaxed"
+              className="font-sans font-light text-[#555555] leading-relaxed"
               style={{ fontSize: "12px" }}
             >
               No bots. No automated replies. Every message is handled personally by our team.
@@ -407,7 +407,7 @@ export default function ContactPage() {
                   {"We'll be\nin touch."}
                 </h2>
                 <p
-                  className="font-sans font-light text-[#3A3A3A] leading-relaxed"
+                  className="font-sans font-light text-[#666666] leading-relaxed"
                   style={{ fontSize: "15px" }}
                 >
                   A real person will reply within 48 hours.
@@ -426,7 +426,7 @@ export default function ContactPage() {
               <div className="max-w-xl w-full">
                 {/* Step counter */}
                 <p
-                  className="font-mono text-[#1C1C1C] mb-10"
+                  className="font-mono text-[#444444] mb-10"
                   style={{ fontSize: "10px", letterSpacing: "0.25em" }}
                 >
                   {String(step + 1).padStart(2, "0")} —{" "}
@@ -456,7 +456,7 @@ export default function ContactPage() {
                       value={val}
                       onChange={(e) => setField(e.target.value)}
                       onKeyDown={onKey}
-                      className="w-full bg-transparent border-b border-[#1C1C1C] text-[#E8E8E8] font-display font-light pb-4 outline-none transition-colors duration-200 placeholder:text-[#161616] focus:border-[#4DFFB4]"
+                      className="w-full bg-transparent border-b border-[#1C1C1C] text-[#E8E8E8] font-display font-light pb-4 outline-none transition-colors duration-200 placeholder:text-[#333333] focus:border-[#4DFFB4]"
                       style={{
                         fontSize: "clamp(1.6rem, 3.5vw, 2.8rem)",
                         letterSpacing: "-0.02em",
@@ -474,7 +474,7 @@ export default function ContactPage() {
                       value={val}
                       onChange={(e) => setField(e.target.value)}
                       onKeyDown={onKey}
-                      className="w-full bg-transparent border-b border-[#1C1C1C] text-[#E8E8E8] font-display font-light pb-4 outline-none transition-colors duration-200 placeholder:text-[#161616] focus:border-[#4DFFB4]"
+                      className="w-full bg-transparent border-b border-[#1C1C1C] text-[#E8E8E8] font-display font-light pb-4 outline-none transition-colors duration-200 placeholder:text-[#333333] focus:border-[#4DFFB4]"
                       style={{
                         fontSize: "clamp(1.6rem, 3.5vw, 2.8rem)",
                         letterSpacing: "-0.02em",
@@ -505,7 +505,7 @@ export default function ContactPage() {
                               className="font-sans font-light transition-colors duration-200"
                               style={{
                                 fontSize: "14px",
-                                color: active ? "#E8E8E8" : "#3A3A3A",
+                                color: active ? "#E8E8E8" : "#555555",
                                 letterSpacing: "0.05em",
                               }}
                             >
@@ -528,7 +528,7 @@ export default function ContactPage() {
                       placeholder="Say anything…"
                       value={val}
                       onChange={(e) => setField(e.target.value)}
-                      className="w-full bg-transparent border-b border-[#1C1C1C] text-[#E8E8E8] font-sans font-light pb-4 outline-none transition-colors duration-200 placeholder:text-[#161616] focus:border-[#4DFFB4] resize-none"
+                      className="w-full bg-transparent border-b border-[#1C1C1C] text-[#E8E8E8] font-sans font-light pb-4 outline-none transition-colors duration-200 placeholder:text-[#333333] focus:border-[#4DFFB4] resize-none"
                       style={{ fontSize: "18px", lineHeight: 1.6 }}
                     />
                   )}
@@ -539,7 +539,7 @@ export default function ContactPage() {
                   <button
                     onClick={goBack}
                     data-cursor="pointer"
-                    className="font-mono text-[#252525] hover:text-[#E8E8E8] transition-colors duration-200 uppercase"
+                    className="font-mono text-[#555555] hover:text-[#E8E8E8] transition-colors duration-200 uppercase"
                     style={{
                       fontSize: "10px",
                       letterSpacing: "0.25em",

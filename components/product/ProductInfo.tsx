@@ -51,6 +51,7 @@ export default function ProductInfo({ product, selectedColor, onColorChange, sto
       price:    product.price,
       quantity: safeQty,
       image:    cartImage,
+      stock:    stock ?? undefined,
     })
 
     // Fly animation: product image → cart icon

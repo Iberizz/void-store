@@ -32,6 +32,7 @@ export interface CartItem {
   price: number
   quantity: number
   image: string
+  stock?: number
 }
 
 interface CartStore {
@@ -53,13 +54,16 @@ export const useCartStore = create<CartStore>()((set) => ({
     set((state) => {
       const existing = state.items.find((i) => i.id === item.id)
       if (existing) {
+        const max     = item.stock ?? existing.stock ?? Infinity
+        const newQty  = Math.min(existing.quantity + item.quantity, max)
         return {
           items: state.items.map((i) =>
-            i.id === item.id ? { ...i, quantity: i.quantity + item.quantity } : i
+            i.id === item.id ? { ...i, quantity: newQty, stock: item.stock ?? i.stock } : i
           ),
         }
       }
-      return { items: [...state.items, item] }
+      const max = item.stock ?? Infinity
+      return { items: [...state.items, { ...item, quantity: Math.min(item.quantity, max) }] }
     }),
 
   removeItem: (id) =>
@@ -70,7 +74,11 @@ export const useCartStore = create<CartStore>()((set) => ({
       items:
         quantity <= 0
           ? state.items.filter((i) => i.id !== id)
-          : state.items.map((i) => (i.id === id ? { ...i, quantity } : i)),
+          : state.items.map((i) => {
+              if (i.id !== id) return i
+              const max = i.stock ?? Infinity
+              return { ...i, quantity: Math.min(quantity, max) }
+            }),
     })),
 
   clearCart: () => set({ items: [] }),

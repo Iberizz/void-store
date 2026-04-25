@@ -94,12 +94,12 @@ export default function AboutPage() {
 
         <div className="flex items-end justify-between gap-8 relative z-10">
           <p ref={subtitleRef}
-            className="font-sans font-light text-[#444444] leading-relaxed max-w-sm"
+            className="font-sans font-light text-[#666666] leading-relaxed max-w-sm"
             style={{ fontSize: '14px' }}>
             Born from a conviction: premium audio should never ask for compromise.
             Three products. Perfected.
           </p>
-          <span className="hidden md:flex items-center gap-3 font-mono text-[#1E1E1E] shrink-0"
+          <span className="hidden md:flex items-center gap-3 font-mono text-[#3A3A3A] shrink-0"
             style={{ fontSize: '10px', letterSpacing: '0.2em' }}>
             <span className="inline-block w-8 h-px bg-[#4DFFB4]" />
             AW25 COLLECTION
@@ -140,7 +140,7 @@ export default function AboutPage() {
         </p>
         <div className="flex items-center gap-4 mt-10 relative z-10">
           <div className="w-6 h-px bg-[#4DFFB4]" />
-          <p className="font-mono text-[#2A2A2A]" style={{ fontSize: '10px', letterSpacing: '0.25em' }}>
+          <p className="font-mono text-[#555555]" style={{ fontSize: '10px', letterSpacing: '0.25em' }}>
             VØID FOUNDING MANIFESTO — 2021
           </p>
         </div>
@@ -156,10 +156,10 @@ export default function AboutPage() {
                 <span ref={(el) => { counterRefs.current[i] = el }} className="text-[#E8E8E8]">0</span>
                 <span className="text-[#4DFFB4]">{stat.suffix}</span>
               </div>
-              <p className="font-mono text-[#3A3A3A] uppercase" style={{ fontSize: '10px', letterSpacing: '0.2em' }}>
+              <p className="font-mono text-[#666666] uppercase" style={{ fontSize: '10px', letterSpacing: '0.2em' }}>
                 {stat.label}
               </p>
-              <p className="font-sans font-light text-[#252525]" style={{ fontSize: '12px' }}>
+              <p className="font-sans font-light text-[#555555]" style={{ fontSize: '12px' }}>
                 {stat.sub}
               </p>
             </div>
@@ -192,7 +192,7 @@ export default function AboutPage() {
               </h2>
             </div>
             <div className="px-8 md:pl-12 pb-10 md:py-14 flex items-center">
-              <p className="font-sans font-light text-[#333333] leading-relaxed group-hover:text-[#4A4A4A] transition-colors duration-500 max-w-md"
+              <p className="font-sans font-light text-[#555555] leading-relaxed group-hover:text-[#888888] transition-colors duration-500 max-w-md"
                 style={{ fontSize: '14px' }}>
                 {body}
               </p>
@@ -215,17 +215,17 @@ export default function AboutPage() {
             </h2>
           </div>
           <div className="flex flex-col gap-6 border-l border-[#1C1C1C] pl-10">
-            <p className="font-sans font-light text-[#4A4A4A] leading-relaxed" style={{ fontSize: '15px' }}>
+            <p className="font-sans font-light text-[#666666] leading-relaxed" style={{ fontSize: '15px' }}>
               VØID was founded in Paris by two acoustic engineers who believed the industry
               had forgotten what mattered: the sound.
             </p>
-            <p className="font-sans font-light text-[#2D2D2D] leading-relaxed" style={{ fontSize: '15px' }}>
+            <p className="font-sans font-light text-[#555555] leading-relaxed" style={{ fontSize: '15px' }}>
               Everything we make is prototyped in our studio. Every component is chosen by ear,
               not spreadsheet. We answer to our listeners — not to shareholders.
             </p>
             <div className="flex items-center gap-4 pt-4">
               <div className="w-6 h-px bg-[#4DFFB4]" />
-              <span className="font-mono text-[#2A2A2A]" style={{ fontSize: '10px', letterSpacing: '0.25em' }}>
+              <span className="font-mono text-[#444444]" style={{ fontSize: '10px', letterSpacing: '0.25em' }}>
                 PARIS, FRANCE
               </span>
             </div>
@@ -248,7 +248,7 @@ export default function AboutPage() {
               <div className="hidden md:block shrink-0 relative z-10" style={{ marginLeft: '44px', paddingTop: '8px' }}>
                 <div className="w-2 h-2 border border-[#252525] group-hover:border-[#4DFFB4] bg-[#000000] transition-colors duration-400" />
               </div>
-              <span className="font-mono text-[#252525] shrink-0 pt-1"
+              <span className="font-mono text-[#555555] shrink-0 pt-1"
                 style={{ fontSize: '11px', letterSpacing: '0.1em', minWidth: '36px' }}>
                 {year}
               </span>
@@ -257,7 +257,7 @@ export default function AboutPage() {
                   style={{ fontSize: 'clamp(1.8rem, 3.5vw, 3rem)', letterSpacing: '-0.035em', minWidth: '260px' }}>
                   {label}
                 </span>
-                <span className="font-sans font-light text-[#333333] group-hover:text-[#555555] transition-colors duration-300"
+                <span className="font-sans font-light text-[#555555] group-hover:text-[#888888] transition-colors duration-300"
                   style={{ fontSize: '14px' }}>
                   {desc}
                 </span>
@@ -270,7 +270,7 @@ export default function AboutPage() {
       {/* ─────── CTA ─────── */}
       <section className="px-8 md:px-16 py-32 flex flex-col md:flex-row md:items-end justify-between gap-12" data-reveal>
         <div>
-          <p className="font-mono text-[#1E1E1E] uppercase mb-8" style={{ fontSize: '10px', letterSpacing: '0.3em' }}>
+          <p className="font-mono text-[#3A3A3A] uppercase mb-8" style={{ fontSize: '10px', letterSpacing: '0.3em' }}>
             AW25 Collection
           </p>
           <h2 className="font-display font-light text-[#E8E8E8]"
@@ -284,7 +284,7 @@ export default function AboutPage() {
             style={{ fontSize: '11px', letterSpacing: '0.3em' }}>
             Shop the collection →
           </Link>
-          <p className="font-mono text-[#181818]" style={{ fontSize: '9px', letterSpacing: '0.2em' }}>
+          <p className="font-mono text-[#444444]" style={{ fontSize: '9px', letterSpacing: '0.2em' }}>
             FREE SHIPPING FROM €500
           </p>
         </div>

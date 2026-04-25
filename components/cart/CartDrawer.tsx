@@ -289,7 +289,8 @@ export default function CartDrawer() {
                           </span>
                           <button onClick={() => updateQuantity(item.id, item.quantity + 1)}
                             aria-label="Augmenter" data-cursor="pointer"
-                            className="px-2.5 py-1.5 text-[#666666] hover:text-[#E8E8E8] transition-colors duration-200">
+                            disabled={item.stock !== undefined && item.quantity >= item.stock}
+                            className="px-2.5 py-1.5 text-[#666666] hover:text-[#E8E8E8] transition-colors duration-200 disabled:opacity-20 disabled:pointer-events-none">
                             <Plus size={12} />
                           </button>
                         </div>

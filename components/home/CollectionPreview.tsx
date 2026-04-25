@@ -1,12 +1,13 @@
 'use client'
 
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { SplitText } from 'gsap/SplitText'
 import { useCartStore } from '@/lib/store'
+import { createClient } from '@/lib/supabase/client'
 
 gsap.registerPlugin(ScrollTrigger, SplitText)
 
@@ -21,21 +22,30 @@ interface Product {
   tag: string
   slug: string
   image: string
+  cartImage: string
 }
 
 const PRODUCTS: Product[] = [
-  { id: 'void-pro',    ref: '001', name: 'VØID Pro',    price: 890,  priceLabel: '€890',   tag: 'Best Seller', slug: 'void-pro',    image: '/images/void-pro-transparent.png'    },
-  { id: 'void-air',    ref: '002', name: 'VØID Air',    price: 590,  priceLabel: '€590',   tag: 'New',         slug: 'void-air',    image: '/images/void-air-transparent.png'    },
-  { id: 'void-studio', ref: '003', name: 'VØID Studio', price: 1290, priceLabel: '€1,290', tag: 'Limited',     slug: 'void-studio', image: '/images/void-studio-transparent.png' },
+  { id: 'void-pro',    ref: '001', name: 'VØID Pro',    price: 890,  priceLabel: '€890',   tag: 'Best Seller', slug: 'void-pro',    image: '/images/void-pro-transparent.png',    cartImage: '/images/void-pro.png'    },
+  { id: 'void-air',    ref: '002', name: 'VØID Air',    price: 590,  priceLabel: '€590',   tag: 'New',         slug: 'void-air',    image: '/images/void-air-transparent.png',    cartImage: '/images/void-air.png'    },
+  { id: 'void-studio', ref: '003', name: 'VØID Studio', price: 1290, priceLabel: '€1,290', tag: 'Limited',     slug: 'void-studio', image: '/images/void-studio-transparent.png', cartImage: '/images/void-studio.png' },
 ]
 
 /* ─── ProductCard ─────────────────────────────────────────── */
 
-function ProductCard({ product }: { product: Product }) {
+function ProductCard({ product, stock }: { product: Product; stock: number | null }) {
   const cardRef      = useRef<HTMLDivElement>(null)
   const highlightRef = useRef<HTMLDivElement>(null)
   const ctaRef       = useRef<HTMLDivElement>(null)
+  const btnRef       = useRef<HTMLButtonElement>(null)
+  const labelRef     = useRef<HTMLSpanElement>(null)
   const addItem      = useCartStore((s) => s.addItem)
+  const cartQty      = useCartStore((s) => s.items.find(i => i.id === `${product.id}-black`)?.quantity ?? 0)
+  const [added, setAdded] = useState(false)
+  const resetTimer   = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const isOutOfStock = stock !== null && stock <= 0
+  const isAtMax      = stock !== null && cartQty >= stock
 
   const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const card      = cardRef.current
@@ -70,17 +80,37 @@ function ProductCard({ product }: { product: Product }) {
     gsap.set(highlightRef.current, { background: 'transparent' })
   }
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = useCallback((e: React.MouseEvent) => {
     e.preventDefault()
-    addItem({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      quantity: 1,
-      slug: product.slug,
-      image: product.image
-    })
-  }
+    if (added || isOutOfStock || isAtMax) return
+
+    addItem({ id: `${product.id}-black`, name: product.name, price: product.price, quantity: 1, slug: product.slug, image: product.cartImage, stock: stock ?? undefined })
+
+    const btn   = btnRef.current
+    const label = labelRef.current
+    if (!btn || !label) return
+
+    setAdded(true)
+
+    gsap.killTweensOf([btn, label])
+    gsap.timeline()
+      .to(label, { opacity: 0, y: -8, duration: 0.18, ease: 'power2.in' })
+      .call(() => { label.textContent = 'Added —' })
+      .to(btn,   { backgroundColor: '#4DFFB4', color: '#000000', duration: 0.25, ease: 'power2.out' }, '<')
+      .to(label, { opacity: 1, y: 0, duration: 0.25, ease: 'power2.out' })
+
+    if (resetTimer.current) clearTimeout(resetTimer.current)
+    resetTimer.current = setTimeout(() => {
+      gsap.timeline()
+        .to(label, { opacity: 0, y: 8, duration: 0.18, ease: 'power2.in' })
+        .call(() => { label.textContent = 'Add to cart' })
+        .to(btn,   { backgroundColor: '#E8E8E8', color: '#000000', duration: 0.25, ease: 'power2.out' }, '<')
+        .to(label, { opacity: 1, y: 0, duration: 0.25, ease: 'power2.out' })
+        .call(() => setAdded(false))
+    }, 2000)
+  }, [added, isOutOfStock, isAtMax, addItem, product, stock])
+
+  useEffect(() => () => { if (resetTimer.current) clearTimeout(resetTimer.current) }, [])
 
   return (
     <Link
@@ -135,11 +165,26 @@ function ProductCard({ product }: { product: Product }) {
             aria-hidden="true"
           >
             <button
-              className="w-full bg-[#E8E8E8] text-[#000000] font-sans font-normal text-sm tracking-wide px-6 py-4 text-left"
+              ref={btnRef}
+              className="w-full font-sans font-normal text-sm tracking-wide px-6 py-4 text-left overflow-hidden transition-opacity"
+              style={{
+                backgroundColor: isOutOfStock || isAtMax ? '#1C1C1C' : '#E8E8E8',
+                color: isOutOfStock || isAtMax ? '#666666' : '#000000',
+                cursor: isOutOfStock || isAtMax ? 'not-allowed' : 'pointer',
+              }}
               onClick={handleAddToCart}
+              disabled={isOutOfStock || isAtMax}
               tabIndex={-1}
+              aria-label={
+                isOutOfStock ? `${product.name} — rupture de stock` :
+                isAtMax      ? `${product.name} — stock maximum atteint` :
+                added        ? `${product.name} ajouté au panier` :
+                               `Ajouter ${product.name} au panier`
+              }
             >
-              Add to cart
+              <span ref={labelRef} className="inline-block">
+                {added ? null : isOutOfStock ? 'Out of stock' : isAtMax ? 'Max stock' : 'Add to cart'}
+              </span>
             </button>
           </div>
         </div>
@@ -167,6 +212,19 @@ export default function CollectionPreview() {
   const sectionRef = useRef<HTMLElement>(null)
   const titleRef   = useRef<HTMLHeadingElement>(null)
   const cardsRef   = useRef<HTMLDivElement>(null)
+  const [stocks, setStocks] = useState<Record<string, number | null>>({})
+
+  useEffect(() => {
+    const ids = PRODUCTS.map(p => p.id)
+    createClient()
+      .from('products')
+      .select('id, stock')
+      .in('id', ids)
+      .then(({ data }) => {
+        if (!data) return
+        setStocks(Object.fromEntries(data.map(r => [r.id, r.stock])))
+      })
+  }, [])
 
   useEffect(() => {
     const title = titleRef.current
@@ -245,7 +303,7 @@ export default function CollectionPreview() {
         className="grid grid-cols-1 md:grid-cols-3 gap-4"
       >
         {PRODUCTS.map((product) => (
-          <ProductCard key={product.id} product={product} />
+          <ProductCard key={product.id} product={product} stock={stocks[product.id] ?? null} />
         ))}
       </div>
 
