@@ -1,12 +1,14 @@
 "use client";
 
 import { useRef, useEffect, useState, useCallback } from "react";
+import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { SplitText } from "gsap/SplitText";
 import { ArrowRight } from "lucide-react";
 import { submitContact } from "@/app/actions/contact";
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, SplitText);
 
 /* ─── Data ─── */
 const TOPICS = [
@@ -22,19 +24,34 @@ type StepKey = (typeof STEPS)[number];
 type Answers = Record<StepKey, string>;
 
 const QUESTIONS: Record<number, (a: Answers) => string> = {
-  0: () => "What's your name?",
-  1: (a) => `Nice to meet you, ${a.name || "…"}.\nYour email?`,
-  2: () => "What brings you to VØID?",
-  3: () => "Tell us more.",
+  0: () => "What's your\nname?",
+  1: (a) => `Nice to meet\nyou, ${a.name || "…"}.`,
+  2: () => "What brings\nyou here?",
+  3: () => "Tell us\nmore.",
 };
 
+const TICKER_ITEMS = [
+  "GENERAL INQUIRY",
+  "PRESS & MEDIA",
+  "PARTNERSHIP",
+  "SUPPORT",
+  "WHOLESALE",
+  "< 48H RESPONSE",
+  "PARIS, FR",
+  "EST. MMXXI",
+];
+
 export default function ContactPage() {
+  /* ── Refs ── */
+  const heroRef = useRef<HTMLHeadingElement>(null);
+  const subtitleRef = useRef<HTMLParagraphElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const textaRef = useRef<HTMLTextAreaElement>(null);
   const leftRef = useRef<HTMLDivElement>(null);
 
+  /* ── State ── */
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Answers>({
     name: "",
@@ -47,18 +64,56 @@ export default function ContactPage() {
 
   const field = STEPS[step];
 
-  /* ── Left panel entrance ── */
+  /* ── Hero + global scroll reveals ── */
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      const split = new SplitText(heroRef.current, {
+        type: "chars",
+        charsClass: "inline-block overflow-hidden",
+      });
+      gsap.from(split.chars, {
+        yPercent: 110,
+        opacity: 0,
+        stagger: 0.025,
+        duration: 1.2,
+        ease: "expo.out",
+        delay: 0.3,
+      });
+
+      gsap.set(subtitleRef.current, { clipPath: "inset(0 100% 0 0)" });
+      gsap.to(subtitleRef.current, {
+        clipPath: "inset(0 0% 0 0)",
+        duration: 1,
+        ease: "expo.out",
+        delay: 0.9,
+      });
+
+      document.querySelectorAll("[data-reveal]").forEach((el) => {
+        gsap.from(el, {
+          opacity: 0,
+          y: 40,
+          duration: 1,
+          ease: "power3.out",
+          scrollTrigger: { trigger: el, start: "top 88%", once: true },
+        });
+      });
+
+      return () => split.revert();
+    });
+    return () => ctx.revert();
+  }, []);
+
+  /* ── Left panel entrance (scroll-triggered) ── */
   useEffect(() => {
     const items = leftRef.current?.querySelectorAll("[data-panel]");
     if (!items) return;
     gsap.set(items, { opacity: 0.75 });
-
     gsap.from(items, {
       x: -20,
       stagger: 0.08,
       duration: 0.8,
       ease: "power3.out",
-      delay: 0.4,
+      scrollTrigger: { trigger: leftRef.current, start: "top 80%", once: true },
     });
   }, []);
 
@@ -139,24 +194,99 @@ export default function ContactPage() {
 
   return (
     <main
-      className="relative z-10 bg-[#000000] min-h-screen"
+      className="relative z-10 bg-[#000000]"
+      style={{ overflowX: "clip" }}
       aria-label="Contact VØID"
     >
-      <div className="grid grid-cols-1 lg:grid-cols-[420px_1px_1fr] min-h-screen">
-        {/* ─────── LEFT PANEL ─────── */}
+      {/* ─────── HERO ─────── */}
+      <section className="relative min-h-screen flex flex-col justify-end px-8 md:px-16 pb-16 pt-32 border-b border-[#1C1C1C] overflow-hidden">
+        {/* Watermark */}
+        <span
+          aria-hidden="true"
+          className="pointer-events-none select-none absolute right-[-2vw] top-1/2 -translate-y-1/2 leading-none font-display font-light"
+          style={{
+            color: "transparent",
+            WebkitTextStroke: "1px #0A0A0A",
+            fontSize: "clamp(16vw, 26vw, 34vw)",
+            letterSpacing: "-0.05em",
+          }}
+        >
+          CONTACT
+        </span>
+
+        <p
+          className="font-mono text-[#4DFFB4] uppercase mb-10 relative z-10"
+          style={{ fontSize: "10px", letterSpacing: "0.35em" }}
+        >
+          GET IN TOUCH &nbsp;·&nbsp; PARIS, FR
+        </p>
+
+        <h1
+          ref={heroRef}
+          className="font-display font-light text-[#E8E8E8] leading-none mb-12 relative z-10"
+          style={{ fontSize: "clamp(4.5rem, 12vw, 13rem)", letterSpacing: "-0.045em" }}
+        >
+          Say<br />hello.
+        </h1>
+
+        <div className="flex items-end justify-between gap-8 relative z-10">
+          <p
+            ref={subtitleRef}
+            className="font-sans font-light text-[#444444] leading-relaxed max-w-sm"
+            style={{ fontSize: "14px" }}
+          >
+            Every message is read by a human. We reply personally within 48 hours.
+          </p>
+          <span
+            className="hidden md:flex items-center gap-3 font-mono text-[#1E1E1E] shrink-0"
+            style={{ fontSize: "10px", letterSpacing: "0.2em" }}
+          >
+            <span className="inline-block w-8 h-px bg-[#4DFFB4]" />
+            AW25 COLLECTION
+          </span>
+        </div>
+      </section>
+
+      {/* ─────── TICKER ─────── */}
+      <div
+        className="py-5 border-b border-[#1C1C1C] overflow-hidden bg-[#040404]"
+        aria-hidden="true"
+      >
+        <div
+          className="flex whitespace-nowrap"
+          style={{
+            width: "max-content",
+            "--marquee-offset": "-50%",
+            animation: "scroll-left 32s linear infinite",
+          } as React.CSSProperties}
+        >
+          {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
+            <span
+              key={i}
+              className="font-mono text-[#4DFFB4] uppercase inline-flex items-center gap-8 px-8"
+              style={{ fontSize: "10px", letterSpacing: "0.3em" }}
+            >
+              {item}
+              <span className="inline-block w-1 h-1 rounded-full bg-[#4DFFB4] opacity-30" />
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* ─────── FORM SECTION ─────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-[420px_1px_1fr]">
+
+        {/* ─── LEFT PANEL ─── */}
         <aside
           ref={leftRef}
-          className="lg:sticky lg:top-0 lg:h-screen flex flex-col justify-between px-10 md:px-12 py-12 pt-32 border-b lg:border-b-0 lg:border-r border-[#1C1C1C] bg-[#020202]"
+          className="lg:sticky lg:top-0 lg:h-screen flex flex-col justify-between px-10 md:px-12 py-12 border-b lg:border-b-0 lg:border-r border-[#1C1C1C] bg-[#020202]"
         >
           <div className="flex flex-col gap-10">
             {/* Brand */}
             <div data-panel>
               <p
                 className="font-display font-light text-[#E8E8E8]"
-                style={{
-                  fontSize: "clamp(2rem, 4vw, 2.8rem)",
-                  letterSpacing: "-0.04em",
-                }}
+                style={{ fontSize: "clamp(2rem, 4vw, 2.8rem)", letterSpacing: "-0.04em" }}
               >
                 VØID
               </p>
@@ -172,10 +302,7 @@ export default function ContactPage() {
               >
                 Studio
               </p>
-              <p
-                className="font-sans font-light text-[#555555]"
-                style={{ fontSize: "14px" }}
-              >
+              <p className="font-sans font-light text-[#555555]" style={{ fontSize: "14px" }}>
                 Paris, France
               </p>
             </div>
@@ -197,23 +324,23 @@ export default function ContactPage() {
               </a>
             </div>
 
-            {/* Response */}
-            <div className="flex flex-col gap-1" data-panel>
+            {/* Response time — big stat */}
+            <div className="flex flex-col gap-2" data-panel>
               <p
                 className="font-mono text-[#252525] uppercase mb-2"
                 style={{ fontSize: "9px", letterSpacing: "0.3em" }}
               >
                 Response time
               </p>
-              <p
-                className="font-display font-light text-[#4DFFB4]"
-                style={{
-                  fontSize: "clamp(2rem, 3.5vw, 2.8rem)",
-                  letterSpacing: "-0.04em",
-                  lineHeight: 1,
-                }}
+              <div
+                className="font-display font-light leading-none"
+                style={{ fontSize: "clamp(3.5rem, 7vw, 5.5rem)", letterSpacing: "-0.05em" }}
               >
-                &lt; 48h
+                <span className="text-[#E8E8E8]">&lt;&nbsp;48</span>
+                <span className="text-[#4DFFB4]">H</span>
+              </div>
+              <p className="font-sans font-light text-[#252525]" style={{ fontSize: "12px" }}>
+                Guaranteed personal reply.
               </p>
             </div>
           </div>
@@ -225,8 +352,7 @@ export default function ContactPage() {
               className="font-sans font-light text-[#1E1E1E] leading-relaxed"
               style={{ fontSize: "12px" }}
             >
-              Every message is read by a human. No bots. No automated replies.
-              We answer personally.
+              No bots. No automated replies. Every message is handled personally by our team.
             </p>
           </div>
         </aside>
@@ -234,8 +360,8 @@ export default function ContactPage() {
         {/* ── Vertical separator ── */}
         <div className="hidden lg:block bg-[#1C1C1C]" />
 
-        {/* ─────── RIGHT — FORM ─────── */}
-        <div className="flex flex-col min-h-screen lg:min-h-0">
+        {/* ─── RIGHT — FORM ─── */}
+        <div className="flex flex-col min-h-screen lg:min-h-[80vh] relative overflow-hidden">
           {/* Progress bar */}
           <div className="h-px bg-[#0E0E0E] relative overflow-hidden">
             <div
@@ -245,7 +371,22 @@ export default function ContactPage() {
             />
           </div>
 
-          <div className="flex-1 flex flex-col justify-center px-8 md:px-16 lg:px-20 py-24 pt-32 lg:pt-24">
+          {/* Watermark step number */}
+          <span
+            aria-hidden="true"
+            className="pointer-events-none select-none absolute right-0 bottom-0 leading-none font-display font-light"
+            style={{
+              color: "transparent",
+              WebkitTextStroke: "1px #0C0C0C",
+              fontSize: "clamp(22vw, 32vw, 42vw)",
+              letterSpacing: "-0.05em",
+              lineHeight: 0.8,
+            }}
+          >
+            {String(step + 1).padStart(2, "0")}
+          </span>
+
+          <div className="flex-1 flex flex-col justify-center px-8 md:px-16 lg:px-20 py-24 relative z-10">
             {sent ? (
               /* ── Confirmation ── */
               <div className="flex flex-col gap-8 max-w-xl">
@@ -271,14 +412,14 @@ export default function ContactPage() {
                 >
                   A real person will reply within 48 hours.
                 </p>
-                <a
+                <Link
                   href="/collection"
                   data-cursor="pointer"
                   className="font-sans font-medium text-[#000000] bg-[#4DFFB4] hover:bg-[#E8E8E8] transition-colors duration-300 uppercase px-10 py-4 w-fit"
                   style={{ fontSize: "11px", letterSpacing: "0.25em" }}
                 >
                   Explore collection →
-                </a>
+                </Link>
               </div>
             ) : (
               /* ── Conversational form ── */
@@ -357,9 +498,7 @@ export default function ContactPage() {
                             className="group flex items-center justify-between border px-6 py-4 transition-all duration-200 text-left w-full"
                             style={{
                               borderColor: active ? "#4DFFB4" : "#1C1C1C",
-                              background: active
-                                ? "rgba(77,255,180,0.04)"
-                                : "transparent",
+                              background: active ? "rgba(77,255,180,0.04)" : "transparent",
                             }}
                           >
                             <span
@@ -373,10 +512,7 @@ export default function ContactPage() {
                               {t.label}
                             </span>
                             {active && (
-                              <ArrowRight
-                                size={12}
-                                className="text-[#4DFFB4] shrink-0"
-                              />
+                              <ArrowRight size={12} className="text-[#4DFFB4] shrink-0" />
                             )}
                           </button>
                         );
